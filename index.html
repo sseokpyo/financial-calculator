@@ -3,945 +3,1877 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>금융 계산기 — 레이아웃 v2</title>
+<title>금융 계산기</title>
 <style>
+/* ── 변수 ── */
 :root{
-  --bg-page:#f0f0ee;
-  --bg-card:#ffffff;
-  --bg-surface:#f5f5f3;
+  --bg-page:#f0f0ee; --bg-card:#ffffff; --bg-surface:#f5f5f3;
   --bg-sidebar:#ffffff;
   --text-1:#1a1a1a; --text-2:#666;
-  --border:rgba(0,0,0,0.09);
-  --border-2:rgba(0,0,0,0.16);
+  --border:rgba(0,0,0,0.09); --border-2:rgba(0,0,0,0.16);
   --green:#1D9E75; --red:#E24B4A; --blue:#378ADD;
   --amber:#BA7517; --purple:#7C5CBF;
-  --shadow:rgba(0,0,0,0.06);
-  --shadow-md:rgba(0,0,0,0.11);
-  --sidebar-w:176px;
-  --header-h:52px;
-  --input-bg:#fff;
-  --btn-bg:#fff; --btn-hover:#f5f5f3;
-  --range-track:#e0e0de;
-  --tab-active-bg:#fff;
+  --shadow:rgba(0,0,0,0.06); --shadow-md:rgba(0,0,0,0.12);
+  --input-bg:#fff; --btn-bg:#fff; --btn-hover:#f5f5f3;
+  --range-track:#e0e0de; --tab-active-bg:#fff;
+  --sidebar-w:176px; --header-h:52px;
 }
 [data-theme="dark"]{
-  --bg-page:#111111;
-  --bg-card:#1c1c1c;
-  --bg-surface:#252525;
+  --bg-page:#111; --bg-card:#1c1c1c; --bg-surface:#252525;
   --bg-sidebar:#181818;
   --text-1:#e6e6e4; --text-2:#999;
-  --border:rgba(255,255,255,0.08);
-  --border-2:rgba(255,255,255,0.14);
-  --shadow:rgba(0,0,0,0.3);
-  --shadow-md:rgba(0,0,0,0.45);
-  --input-bg:#252525;
-  --btn-bg:#252525; --btn-hover:#2e2e2e;
-  --range-track:#3a3a3a;
-  --tab-active-bg:#2a2a2a;
+  --border:rgba(255,255,255,0.08); --border-2:rgba(255,255,255,0.14);
+  --input-bg:#252525; --btn-bg:#252525; --btn-hover:#2e2e2e;
+  --range-track:#3a3a3a; --tab-active-bg:#2a2a2a;
+  --shadow:rgba(0,0,0,0.3); --shadow-md:rgba(0,0,0,0.5);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;
-  background:var(--bg-page);
-  color:var(--text-1);
-  transition:background .25s,color .25s;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;
+  background:var(--bg-page);color:var(--text-1);transition:background .25s,color .25s;}
 
-/* ══════════════════════════════
-   전체 레이아웃: 사이드 | 메인
-   ============================== */
-.app-layout{
-  display:flex;
-  min-height:100vh;
-  /* 사이드바 너비만큼 오프셋 */
-}
+/* ── 레이아웃 ── */
+.app-layout{display:flex;min-height:100vh;}
 
-/* ════ 고정 사이드바 ════ */
+/* ── 사이드바 ── */
 .sidebar{
-  position:fixed;
-  top:0; left:0; bottom:0;
-  width:var(--sidebar-w);
-  background:var(--bg-sidebar);
-  border-right:.5px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  z-index:100;
-  transition:background .25s, border-color .25s;
-  overflow:hidden; /* 스크롤 없음 */
+  position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);
+  background:var(--bg-sidebar);border-right:.5px solid var(--border);
+  display:flex;flex-direction:column;z-index:100;
+  overflow:hidden;transition:background .25s,border-color .25s;
 }
-
-/* 사이드바 로고 영역 */
 .sidebar-logo{
-  height:var(--header-h);
-  display:flex; align-items:center;
-  padding:0 16px;
-  border-bottom:.5px solid var(--border);
-  flex-shrink:0;
+  height:var(--header-h);display:flex;align-items:center;
+  padding:0 16px;border-bottom:.5px solid var(--border);flex-shrink:0;
 }
 .logo-icon{
-  width:28px; height:28px;
-  background:var(--green);
-  border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px;
-  margin-right:9px;
-  flex-shrink:0;
+  width:28px;height:28px;background:var(--green);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;margin-right:9px;flex-shrink:0;
 }
-.logo-text{
-  font-size:13px; font-weight:700;
-  color:var(--text-1);
-  letter-spacing:-.3px;
-  line-height:1.2;
-}
+.logo-text{font-size:13px;font-weight:700;color:var(--text-1);letter-spacing:-.3px;line-height:1.2;}
 .logo-sub{font-size:10px;color:var(--text-2);font-weight:400;}
-
-/* 메뉴 목록 영역 */
-.sidebar-nav{
-  flex:1;
-  padding:12px 8px;
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  overflow:hidden; /* 절대 스크롤 없음 */
-}
-
-/* 그룹 레이블 */
-.nav-group{margin-bottom:4px; margin-top:8px;}
+.sidebar-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+.nav-group{margin-bottom:4px;margin-top:8px;}
 .nav-group:first-child{margin-top:0;}
 .nav-label{
-  font-size:9.5px; font-weight:700;
-  color:var(--text-2); opacity:.6;
-  letter-spacing:.7px; text-transform:uppercase;
-  padding:0 8px; margin-bottom:3px;
-  display:block;
+  font-size:9.5px;font-weight:700;color:var(--text-2);opacity:.6;
+  letter-spacing:.7px;text-transform:uppercase;
+  padding:0 8px;margin-bottom:3px;display:block;
 }
-
-/* 메뉴 아이템 */
 .nav-item{
-  display:flex; align-items:center; gap:8px;
-  padding:7px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:12.5px; font-weight:500;
-  color:var(--text-2);
-  background:transparent;
-  border:none; width:100%; text-align:left;
-  transition:background .12s, color .12s;
-  white-space:nowrap;
+  display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:500;
+  color:var(--text-2);background:transparent;border:none;
+  width:100%;text-align:left;white-space:nowrap;
+  transition:background .12s,color .12s;
 }
-.nav-item:hover{background:var(--btn-hover); color:var(--text-1);}
-.nav-item.active{
-  background:rgba(29,158,117,.1);
-  color:var(--green);
-  font-weight:600;
-}
-.nav-icon{
-  font-size:14px;
-  width:20px; text-align:center;
-  flex-shrink:0;
-}
-
-/* 사이드바 하단: 다크모드 */
-.sidebar-bottom{
-  padding:10px 8px 14px;
-  border-top:.5px solid var(--border);
-  flex-shrink:0;
-}
+.nav-item:hover{background:var(--btn-hover);color:var(--text-1);}
+.nav-item.active{background:rgba(29,158,117,.1);color:var(--green);font-weight:600;}
+.nav-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.sidebar-bottom{padding:10px 8px 14px;border-top:.5px solid var(--border);flex-shrink:0;}
 .theme-btn{
-  display:flex; align-items:center; gap:8px;
-  width:100%; padding:7px 10px;
-  border-radius:8px; border:none;
-  background:transparent;
-  cursor:pointer;
-  font-size:12px; color:var(--text-2);
-  font-weight:500;
-  transition:background .12s, color .12s;
+  display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;
+  border-radius:8px;border:none;background:transparent;cursor:pointer;
+  font-size:12px;color:var(--text-2);font-weight:500;
+  transition:background .12s,color .12s;
 }
-.theme-btn:hover{background:var(--btn-hover); color:var(--text-1);}
-.theme-icon{font-size:14px; width:20px; text-align:center;}
+.theme-btn:hover{background:var(--btn-hover);color:var(--text-1);}
+.theme-icon{font-size:14px;width:20px;text-align:center;}
 
-/* ════ 메인 영역 ════ */
+/* ── 메인 ── */
 .main-area{
-  margin-left:var(--sidebar-w);
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
-  align-items:center; /* 가로 중앙 */
+  margin-left:var(--sidebar-w);flex:1;
+  display:flex;flex-direction:column;min-height:100vh;align-items:center;
 }
-
-/* 메인 헤더 */
 .main-header{
-  height:var(--header-h);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 28px;
-  border-bottom:.5px solid var(--border);
-  background:var(--bg-card);
-  position:sticky; top:0; z-index:50;
-  width:100%;
-  max-width:720px;
-  transition:background .25s, border-color .25s;
-  border-left:.5px solid var(--border);
-  border-right:.5px solid var(--border);
+  height:var(--header-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;border-bottom:.5px solid var(--border);
+  background:var(--bg-card);position:sticky;top:0;z-index:50;
+  width:100%;max-width:720px;
+  border-left:.5px solid var(--border);border-right:.5px solid var(--border);
+  transition:background .25s,border-color .25s;
 }
-.header-title{
-  font-size:15px; font-weight:600;
-  color:var(--text-1);
-}
-.header-right{
-  display:flex; align-items:center; gap:8px;
-}
+.header-title{font-size:15px;font-weight:600;color:var(--text-1);}
 .header-badge{
-  font-size:11px; color:var(--text-2);
-  background:var(--bg-surface);
-  border:.5px solid var(--border);
-  border-radius:20px;
-  padding:3px 10px;
+  font-size:11px;color:var(--text-2);background:var(--bg-surface);
+  border:.5px solid var(--border);border-radius:20px;padding:3px 10px;
 }
-
-/* 계산기 콘텐츠 박스 */
 .content-box{
-  width:100%;
-  max-width:720px;
-  background:var(--bg-card);
-  border-left:.5px solid var(--border);
-  border-right:.5px solid var(--border);
-  border-bottom:.5px solid var(--border);
-  padding:24px 28px;
-  /* 뷰포트 높이에서 헤더 빼기 → 스크롤 없음 */
-  height:calc(100vh - var(--header-h));
-  overflow:hidden;
-  display:flex; flex-direction:column;
-  transition:background .25s, border-color .25s;
+  width:100%;max-width:720px;background:var(--bg-card);
+  border-left:.5px solid var(--border);border-right:.5px solid var(--border);
+  border-bottom:.5px solid var(--border);padding:22px 28px;
+  height:calc(100vh - var(--header-h));overflow:hidden;
+  display:flex;flex-direction:column;
   box-shadow:0 2px 24px var(--shadow);
+  transition:background .25s,border-color .25s;
 }
 
-/* 패널 */
-.panel{display:none; flex-direction:column; flex:1; overflow:hidden;}
+/* ── 패널 ── */
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden;}
 .panel.active{display:flex;}
-
-/* 패널 상단 */
-.panel-head{margin-bottom:16px; flex-shrink:0;}
-.panel-title{font-size:16px; font-weight:700; color:var(--text-1); margin-bottom:3px;}
-.panel-desc{font-size:11.5px; color:var(--text-2);}
-
-/* 상환방식 토글 */
-.repay-toggle{
-  display:flex; background:var(--bg-surface);
-  border-radius:8px; padding:3px; gap:3px;
-  margin-bottom:14px; flex-shrink:0;
-}
-.rtbtn{
-  flex:1; font-size:12.5px; font-weight:500;
-  padding:6px 0; border-radius:6px; border:none;
-  background:transparent; color:var(--text-2); cursor:pointer;
-  transition:background .14s, color .14s, box-shadow .14s;
-}
-.rtbtn.active{background:var(--tab-active-bg); color:var(--text-1); box-shadow:0 1px 4px var(--shadow);}
-
-/* 세금·연금 서브탭 */
-.sub-tabs{display:flex; gap:5px; margin-bottom:14px; flex-shrink:0; flex-wrap:wrap;}
-.stab{
-  font-size:11.5px; font-weight:500;
-  padding:5px 13px; border-radius:20px;
-  border:.5px solid var(--border-2);
-  background:var(--btn-bg); color:var(--text-2);
-  cursor:pointer;
-  transition:background .12s, color .12s;
-}
-.stab:hover{background:var(--btn-hover); color:var(--text-1);}
-.stab.active-amber{background:var(--amber); color:#fff; border-color:var(--amber);}
-.stab.active-purple{background:var(--purple); color:#fff; border-color:var(--purple);}
-
-/* 패널 스크롤 영역 */
+.panel-head{margin-bottom:14px;flex-shrink:0;}
+.panel-title{font-size:16px;font-weight:700;color:var(--text-1);margin-bottom:3px;}
+.panel-desc{font-size:11.5px;color:var(--text-2);}
 .panel-scroll{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding-right:4px;
-  /* 스크롤바 얇게 */
-  scrollbar-width:thin;
-  scrollbar-color:var(--border-2) transparent;
+  flex:1;overflow-y:auto;overflow-x:hidden;padding-right:2px;
+  scrollbar-width:thin;scrollbar-color:var(--border-2) transparent;
 }
 .panel-scroll::-webkit-scrollbar{width:4px;}
-.panel-scroll::-webkit-scrollbar-thumb{background:var(--border-2); border-radius:4px;}
+.panel-scroll::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px;}
 
-/* 입력 공통 */
-label{font-size:12px; color:var(--text-2); display:block; margin-bottom:5px;}
-.input-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
-.input-grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px;}
-input[type="number"]{
-  width:100%; font-size:14px; padding:7px 9px;
-  border:.5px solid var(--border-2); border-radius:7px;
-  outline:none; background:var(--input-bg); color:var(--text-1);
-  transition:border-color .14s, background .25s;
+/* ── 토글 ── */
+.repay-toggle,.mode-bar{
+  display:flex;background:var(--bg-surface);border-radius:8px;
+  padding:3px;gap:3px;margin-bottom:14px;flex-shrink:0;
 }
-input[type="number"]:focus{border-color:var(--green); box-shadow:0 0 0 2px rgba(29,158,117,.13);}
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button{opacity:1;}
-.input-wrap{display:flex; flex-direction:column;}
-.input-hint{font-size:10.5px; color:var(--text-2); opacity:.6; margin-top:3px; min-height:14px;}
+.rtbtn,.mode-btn{
+  flex:1;font-size:12.5px;font-weight:500;padding:6px 0;
+  border-radius:6px;border:none;background:transparent;
+  color:var(--text-2);cursor:pointer;
+  transition:background .14s,color .14s,box-shadow .14s;
+}
+.rtbtn.active,.mode-btn.active{
+  background:var(--tab-active-bg);color:var(--text-1);
+  box-shadow:0 1px 4px var(--shadow);
+}
+.sub-tabs{display:flex;gap:5px;margin-bottom:14px;flex-shrink:0;flex-wrap:wrap;}
+.stab{
+  font-size:11.5px;font-weight:500;padding:5px 13px;border-radius:20px;
+  border:.5px solid var(--border-2);background:var(--btn-bg);color:var(--text-2);
+  cursor:pointer;transition:background .12s,color .12s;
+}
+.stab:hover{background:var(--btn-hover);color:var(--text-1);}
+.stab.act-amber{background:var(--amber);color:#fff;border-color:var(--amber);}
+.stab.act-purple{background:var(--purple);color:#fff;border-color:var(--purple);}
+.stab.act-green{background:var(--green);color:#fff;border-color:var(--green);}
+
+/* ── 입력 ── */
+label{font-size:12px;color:var(--text-2);display:block;margin-bottom:5px;}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.ig3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.input-wrap{display:flex;flex-direction:column;}
+.input-hint{font-size:10.5px;color:var(--text-2);opacity:.6;margin-top:3px;min-height:14px;}
+input[type=number],input[type=text]{
+  width:100%;font-size:14px;padding:7px 9px;
+  border:.5px solid var(--border-2);border-radius:7px;outline:none;
+  background:var(--input-bg);color:var(--text-1);
+  transition:border-color .14s,background .25s;
+}
+input[type=number]:focus,input[type=text]:focus{
+  border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,.13);
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{opacity:1;}
 select{
-  width:100%; font-size:13px; padding:7px 9px;
-  border:.5px solid var(--border-2); border-radius:7px;
-  outline:none; background:var(--input-bg); color:var(--text-1);
-  cursor:pointer; appearance:none; -webkit-appearance:none;
+  width:100%;font-size:13px;padding:7px 9px;
+  border:.5px solid var(--border-2);border-radius:7px;outline:none;
+  background:var(--input-bg);color:var(--text-1);cursor:pointer;
+  appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 9px center; padding-right:26px;
+  background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;
 }
 select:focus{border-color:var(--green);}
 
-/* 슬라이더 */
-.slider-section{margin-bottom:12px; flex-shrink:0;}
-.slider-header{display:flex; justify-content:space-between; margin-bottom:5px;}
-.slider-header label{margin:0;}
-.slider-val{font-size:12px; font-weight:600; color:var(--text-1);}
-input[type="range"]{
-  width:100%; height:4px; -webkit-appearance:none;
-  background:var(--range-track); border-radius:2px; outline:none; cursor:pointer;
+/* ── 슬라이더 ── */
+.sl-sec{margin-bottom:11px;flex-shrink:0;}
+.sl-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.sl-hdr label{margin:0;}
+.sl-val{font-size:12px;font-weight:600;color:var(--text-1);}
+input[type=range]{
+  width:100%;height:4px;-webkit-appearance:none;
+  background:var(--range-track);border-radius:2px;outline:none;cursor:pointer;
 }
-input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-  background:var(--green); border:2px solid var(--bg-card);
-  box-shadow:0 1px 3px rgba(0,0,0,.2); cursor:pointer;
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--green);border:2px solid var(--bg-card);
+  box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:pointer;
 }
-.btn-row{display:flex; gap:5px; margin-top:7px;}
+input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--green);border:2px solid var(--bg-card);cursor:pointer;
+}
+.btn-row{display:flex;gap:5px;margin-top:7px;}
 .sbtn{
-  flex:1; font-size:11px; font-weight:500; padding:5px 0;
-  border-radius:7px; border:.5px solid var(--border);
-  background:var(--btn-bg); color:var(--text-2); cursor:pointer;
-  transition:background .1s, color .1s;
+  flex:1;font-size:11px;font-weight:500;padding:5px 0;
+  border-radius:7px;border:.5px solid var(--border);
+  background:var(--btn-bg);color:var(--text-2);cursor:pointer;
+  transition:background .1s,color .1s;
 }
-.sbtn:hover{background:var(--btn-hover); color:var(--text-1);}
-.sbtn.active{background:var(--green); color:#fff; border-color:var(--green);}
+.sbtn:hover{background:var(--btn-hover);color:var(--text-1);}
+.sbtn.active{background:var(--green);color:#fff;border-color:var(--green);}
 
-/* 요약 카드 */
-.cards{display:grid; gap:8px; margin-bottom:12px; flex-shrink:0;}
-.cards-3{grid-template-columns:repeat(3,1fr);}
-.cards-2{grid-template-columns:repeat(2,1fr);}
-.cards-4{grid-template-columns:repeat(4,1fr);}
-.card{
-  background:var(--bg-surface);
-  border-radius:8px; padding:11px 12px;
-  transition:background .25s;
-}
-.card-label{font-size:11px; color:var(--text-2); margin-bottom:4px;}
-.card-value{font-size:16px; font-weight:700; color:var(--text-1); line-height:1.2;}
-.card-value.g{color:var(--green);}
-.card-value.r{color:var(--red);}
-.card-value.am{color:var(--amber);}
-.card-value.bl{color:var(--blue);}
+/* ── 카드 ── */
+.cards{display:grid;gap:8px;margin-bottom:10px;flex-shrink:0;}
+.c2{grid-template-columns:repeat(2,1fr);}
+.c3{grid-template-columns:repeat(3,1fr);}
+.c4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--bg-surface);border-radius:8px;padding:11px 12px;transition:background .25s;}
+.card-label{font-size:11px;color:var(--text-2);margin-bottom:4px;}
+.card-value{font-size:15px;font-weight:700;color:var(--text-1);line-height:1.2;}
+.card-value.g{color:var(--green);} .card-value.r{color:var(--red);}
+.card-value.am{color:var(--amber);} .card-value.bl{color:var(--blue);}
 .card-value.pu{color:var(--purple);}
-.card-sub{font-size:10.5px; color:var(--text-2); margin-top:3px; opacity:.8;}
+.card-sub{font-size:10.5px;color:var(--text-2);margin-top:3px;opacity:.8;}
 
-/* 차트 placeholder */
-.chart-box{
-  background:var(--bg-surface);
-  border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0;
-  margin-bottom:10px;
-}
-.chart-box.h-md{height:180px;}
-.chart-box.h-sm{height:140px;}
-.chart-ph{font-size:11.5px; color:var(--text-2); opacity:.45;}
-
-/* legend */
+/* ── 차트 ── */
+.chart-wrap{position:relative;width:100%;flex-shrink:0;margin-bottom:6px;}
+.chart-wrap.h240{height:220px;} .chart-wrap.h180{height:170px;}
+canvas{display:block;}
 .legend{
-  display:flex; gap:12px; justify-content:center;
-  font-size:11px; color:var(--text-2);
-  flex-wrap:wrap; margin-bottom:8px; flex-shrink:0;
+  display:flex;gap:12px;justify-content:center;
+  font-size:11px;color:var(--text-2);flex-wrap:wrap;
+  margin-bottom:8px;flex-shrink:0;
 }
-.legend span{display:flex; align-items:center; gap:3px;}
-.ldot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+.legend span{display:flex;align-items:center;gap:3px;}
+.ldot{width:9px;height:9px;border-radius:2px;display:inline-block;}
 
-/* 세금 breakdown */
+/* ── 도넛 ── */
+.donut-wrap{
+  display:grid;grid-template-columns:180px 1fr;
+  gap:14px;margin-bottom:8px;align-items:center;flex-shrink:0;
+}
+.donut-box{position:relative;width:180px;height:180px;}
+.donut-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+.donut-label{font-size:11px;color:var(--text-2);}
+.donut-pct{font-size:20px;font-weight:600;color:var(--red);}
+.bar-breakdown{display:flex;flex-direction:column;gap:10px;}
+.bar-item .bi-label{font-size:11px;color:var(--text-2);margin-bottom:3px;}
+.bar-track{height:7px;border-radius:4px;background:var(--bg-surface);overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+.bi-amt{font-size:12px;color:var(--text-2);margin-top:3px;}
+
+/* ── 세금 breakdown ── */
 .tax-rows{margin-top:6px;}
-.tax-row{
-  display:flex; justify-content:space-between;
-  padding:6px 10px; border-radius:6px; font-size:12px;
-}
+.tax-row{display:flex;justify-content:space-between;padding:5px 10px;border-radius:6px;font-size:12px;}
 .tax-row:hover{background:var(--bg-surface);}
-.tax-row.total{background:var(--bg-surface); font-weight:600; margin-top:4px;}
+.tax-row.total{background:var(--bg-surface);font-weight:600;margin-top:4px;}
 .tax-row.total .tv{color:var(--red);}
-.tl{color:var(--text-2);}
-.tv{font-weight:500; color:var(--text-1);}
+.tl{color:var(--text-2);} .tv{font-weight:500;color:var(--text-1);}
 
-/* 뱃지 */
-.badge{
-  display:inline-flex; align-items:center; gap:5px;
-  background:var(--bg-surface); border:.5px solid var(--border);
-  border-radius:7px; padding:5px 11px;
-  font-size:11.5px; color:var(--text-2);
-  margin-bottom:12px; flex-shrink:0;
-}
-.badge strong{font-weight:600; color:var(--text-1);}
-
-/* 참고 박스 */
+/* ── 안내 박스 ── */
 .ref{
-  font-size:10.5px; color:var(--text-2);
-  line-height:1.85; background:var(--bg-surface);
-  padding:9px 12px; border-radius:8px;
-  margin-top:8px;
+  font-size:10.5px;color:var(--text-2);line-height:1.85;
+  background:var(--bg-surface);padding:9px 12px;border-radius:8px;margin-top:8px;
 }
-.ref strong{font-weight:600; color:var(--text-1);}
+.ref strong{font-weight:600;color:var(--text-1);}
+.ref.info{background:rgba(55,138,221,.07);border-left:3px solid var(--blue);padding-left:10px;}
+.ref.ok{background:rgba(29,158,117,.07);border-left:3px solid var(--green);padding-left:10px;}
+.ref.warn{background:rgba(186,117,23,.07);border-left:3px solid var(--amber);padding-left:10px;}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--bg-surface);border:.5px solid var(--border);
+  border-radius:7px;padding:5px 11px;font-size:11.5px;color:var(--text-2);
+  margin-bottom:12px;flex-shrink:0;
+}
+.badge strong{font-weight:600;color:var(--text-1);}
+hr{border:none;border-top:.5px solid var(--border);margin:10px 0;}
 
-/* 구분선 */
-hr{border:none; border-top:.5px solid var(--border); margin:12px 0;}
+/* ── 세금/배당 옵션 박스 ── */
+.opt-box{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 12px;background:var(--bg-surface);border-radius:8px;
+  margin-bottom:12px;flex-shrink:0;
+}
+.opt-box label{margin:0;color:var(--text-1);font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--red);cursor:pointer;}
+.tax-badge{
+  font-size:11px;background:var(--bg-card);border:.5px solid var(--border);
+  border-radius:6px;padding:3px 8px;color:var(--amber);margin-left:auto;
+}
 
-/* ════ 플로팅 계산기 FAB ════ */
+/* ── 플로팅 계산기 ── */
 .calc-fab{
-  position:fixed; right:22px; bottom:26px; z-index:200;
-  width:48px; height:48px; border-radius:50%;
-  background:var(--green); border:none; cursor:pointer;
+  position:fixed;right:22px;bottom:26px;z-index:200;
+  width:48px;height:48px;border-radius:50%;
+  background:var(--green);border:none;cursor:pointer;
   box-shadow:0 4px 14px rgba(29,158,117,.44);
-  display:flex; align-items:center; justify-content:center;
-  transition:transform .16s, box-shadow .16s;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .16s,box-shadow .16s;
 }
-.calc-fab:hover{transform:scale(1.08); box-shadow:0 6px 20px rgba(29,158,117,.54);}
-.calc-fab svg{width:21px; height:21px; stroke:#fff; stroke-width:2; fill:none;
-  stroke-linecap:round; stroke-linejoin:round;}
-
-/* 계산기 패널 */
+.calc-fab:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(29,158,117,.54);}
+.calc-fab:active{transform:scale(.95);}
+.calc-fab svg{width:21px;height:21px;stroke:#fff;stroke-width:2;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;}
 .calc-panel{
-  position:fixed; right:22px; bottom:84px; z-index:199;
-  width:228px;
-  background:var(--bg-card);
-  border-radius:16px; border:.5px solid var(--border);
-  box-shadow:0 10px 36px rgba(0,0,0,.17);
-  overflow:hidden;
+  position:fixed;right:22px;bottom:84px;z-index:199;width:228px;
+  background:var(--bg-card);border-radius:16px;border:.5px solid var(--border);
+  box-shadow:0 10px 36px rgba(0,0,0,.17);overflow:hidden;
   transform-origin:bottom right;
-  transform:scale(.84) translateY(6px); opacity:0; pointer-events:none;
-  transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s;
+  transform:scale(.84) translateY(6px);opacity:0;pointer-events:none;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),opacity .18s;
 }
-.calc-panel.open{transform:scale(1) translateY(0); opacity:1; pointer-events:auto;}
-.calc-display{
-  background:var(--bg-surface);
-  padding:10px 14px 8px; text-align:right;
-  border-bottom:.5px solid var(--border);
-}
-.calc-expr{font-size:11px; color:var(--text-2); min-height:14px; margin-bottom:2px;}
-.calc-num{font-size:26px; font-weight:500; color:var(--text-1); line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.calc-keys{display:grid; grid-template-columns:repeat(4,1fr); gap:.5px; background:var(--border);}
-.ck{border:none; height:48px; font-size:15px; font-weight:500; cursor:pointer; background:var(--bg-card); color:var(--text-1); transition:background .08s; user-select:none;}
+.calc-panel.open{transform:scale(1) translateY(0);opacity:1;pointer-events:auto;}
+.calc-display{background:var(--bg-surface);padding:10px 14px 8px;text-align:right;border-bottom:.5px solid var(--border);}
+.calc-expr{font-size:11px;color:var(--text-2);min-height:14px;margin-bottom:2px;}
+.calc-num{font-size:26px;font-weight:500;color:var(--text-1);line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:.5px;background:var(--border);}
+.ck{border:none;height:48px;font-size:15px;font-weight:500;cursor:pointer;background:var(--bg-card);color:var(--text-1);transition:background .08s;user-select:none;}
 .ck:hover{background:var(--btn-hover);}
-.ck.fn{color:var(--text-2); font-size:12.5px;}
+.ck.fn{color:var(--text-2);font-size:12.5px;}
 .ck.op{color:var(--blue);}
-.ck.eq{background:var(--green); color:#fff;}
+.ck.eq{background:var(--green);color:#fff;}
 .ck.eq:hover{filter:brightness(1.07);}
-.ck.wide{grid-column:span 2; text-align:left; padding-left:20px;}
+.ck.wide{grid-column:span 2;text-align:left;padding-left:20px;}
 
-/* ════ 반응형 ════ */
+/* ── 반응형 ── */
 @media(max-width:700px){
   :root{--sidebar-w:52px;}
   .logo-text,.logo-sub,.nav-label,.nav-item span:not(.nav-icon){display:none;}
-  .nav-item{justify-content:center; padding:8px 0;}
-  .sidebar-logo{justify-content:center; padding:0;}
+  .nav-item{justify-content:center;padding:8px 0;}
+  .sidebar-logo{justify-content:center;padding:0;}
   .logo-icon{margin:0;}
   .theme-btn span:not(.theme-icon){display:none;}
-  .theme-btn{justify-content:center; padding:8px 0;}
-  .main-header,.content-box{max-width:100%; border-left:none; border-right:none;}
-  .content-box{padding:16px 18px;}
-  .cards-4{grid-template-columns:1fr 1fr;}
-  .cards-3{grid-template-columns:1fr 1fr;}
-  .input-grid-3{grid-template-columns:1fr 1fr;}
-  .calc-fab{right:14px; bottom:18px;}
-  .calc-panel{right:14px; bottom:76px; width:calc(100vw - 66px); max-width:228px;}
+  .theme-btn{justify-content:center;padding:8px 0;}
+  .main-header,.content-box{max-width:100%;border-left:none;border-right:none;}
+  .content-box{padding:14px 16px;}
+  .c4,.c3{grid-template-columns:1fr 1fr;}
+  .ig3{grid-template-columns:1fr 1fr;}
+  .donut-wrap{grid-template-columns:1fr;justify-items:center;}
+  .calc-fab{right:14px;bottom:18px;}
+  .calc-panel{right:14px;bottom:76px;width:calc(100vw - 66px);max-width:228px;}
 }
 </style>
 </head>
 <body>
 <div class="app-layout">
 
-  <!-- ════ 고정 사이드바 ════ -->
-  <aside class="sidebar">
-
-    <!-- 로고 -->
-    <div class="sidebar-logo">
-      <div class="logo-icon">💹</div>
-      <div>
-        <div class="logo-text">금융 계산기</div>
-        <div class="logo-sub">Financial Calc</div>
-      </div>
-    </div>
-
-    <!-- 메뉴 -->
-    <nav class="sidebar-nav">
-
-      <!-- 대출 -->
-      <div class="nav-group">
-        <span class="nav-label">대출</span>
-        <button class="nav-item active" data-panel="loan" data-label="대출 계산기">
-          <span class="nav-icon">🏦</span>
-          <span>대출 계산기</span>
-        </button>
-      </div>
-
-      <!-- 투자 -->
-      <div class="nav-group">
-        <span class="nav-label">투자</span>
-        <button class="nav-item" data-panel="compound" data-label="복리 계산기">
-          <span class="nav-icon">📈</span>
-          <span>복리 계산기</span>
-        </button>
-        <button class="nav-item" data-panel="dividend" data-label="배당 계산기">
-          <span class="nav-icon">💰</span>
-          <span>배당 계산기</span>
-        </button>
-      </div>
-
-      <!-- 세금·연금 -->
-      <div class="nav-group">
-        <span class="nav-label">세금 · 연금</span>
-        <button class="nav-item" data-panel="tax" data-label="세금 계산기">
-          <span class="nav-icon">📋</span>
-          <span>세금 계산기</span>
-        </button>
-        <button class="nav-item" data-panel="retire" data-label="퇴직금 계산기">
-          <span class="nav-icon">🧾</span>
-          <span>퇴직금 계산기</span>
-        </button>
-        <button class="nav-item" data-panel="pension" data-label="연금 계산기">
-          <span class="nav-icon">🏖️</span>
-          <span>연금 계산기</span>
-        </button>
-      </div>
-
-    </nav>
-
-    <!-- 하단 다크모드 -->
-    <div class="sidebar-bottom">
-      <button class="theme-btn" onclick="toggleTheme()">
-        <span class="theme-icon" id="themeIcon">🌙</span>
-        <span id="themeLabel">다크 모드</span>
+<!-- ════ 사이드바 ════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">💹</div>
+    <div><div class="logo-text">금융 계산기</div><div class="logo-sub">Financial Calc</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <span class="nav-label">대출</span>
+      <button class="nav-item active" data-panel="loan" data-label="대출 계산기" data-badge="원리금균등상환">
+        <span class="nav-icon">🏦</span><span>대출 계산기</span>
       </button>
     </div>
+    <div class="nav-group">
+      <span class="nav-label">투자</span>
+      <button class="nav-item" data-panel="compound" data-label="복리 계산기" data-badge="">
+        <span class="nav-icon">📈</span><span>복리 계산기</span>
+      </button>
+      <button class="nav-item" data-panel="dividend" data-label="배당 계산기" data-badge="">
+        <span class="nav-icon">💰</span><span>배당 계산기</span>
+      </button>
+    </div>
+    <div class="nav-group">
+      <span class="nav-label">세금 · 연금</span>
+      <button class="nav-item" data-panel="tax" data-label="세금 계산기" data-badge="">
+        <span class="nav-icon">📋</span><span>세금 계산기</span>
+      </button>
+      <button class="nav-item" data-panel="retire" data-label="퇴직금 계산기" data-badge="">
+        <span class="nav-icon">🧾</span><span>퇴직금 계산기</span>
+      </button>
+      <button class="nav-item" data-panel="pension" data-label="연금 계산기" data-badge="">
+        <span class="nav-icon">🏖️</span><span>연금 계산기</span>
+      </button>
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span class="theme-icon" id="themeIcon">🌙</span>
+      <span id="themeLabel">다크 모드</span>
+    </button>
+  </div>
+</aside>
 
-  </aside>
+<!-- ════ 메인 ════ -->
+<div class="main-area">
+  <header class="main-header">
+    <span class="header-title" id="headerTitle">대출 계산기</span>
+    <span class="header-badge" id="headerBadge">원리금균등상환</span>
+  </header>
 
-  <!-- ════ 메인 영역 ════ -->
-  <div class="main-area">
+  <div class="content-box">
 
-    <!-- 상단 헤더 -->
-    <header class="main-header">
-      <span class="header-title" id="headerTitle">대출 계산기</span>
-      <div class="header-right">
-        <span class="header-badge" id="headerBadge">원리금균등상환</span>
+    <!-- ══ 대출 계산기 ══ -->
+    <div id="panel-loan" class="panel active">
+      <div class="panel-head">
+        <div class="panel-title">대출 계산기</div>
+        <div class="panel-desc">원리금균등 · 원금균등 두 가지 상환 방식을 비교할 수 있어요</div>
       </div>
-    </header>
-
-    <!-- 콘텐츠 박스 (스크롤 없음) -->
-    <div class="content-box">
-
-      <!-- ── 대출 계산기 ── -->
-      <div id="panel-loan" class="panel active">
-        <div class="panel-head">
-          <div class="panel-title">대출 계산기</div>
-          <div class="panel-desc">원리금균등 · 원금균등 두 가지 상환 방식을 비교할 수 있어요</div>
+      <div class="repay-toggle">
+        <button class="rtbtn active" id="rt-equal" onclick="setRepay('equal')">원리금균등상환</button>
+        <button class="rtbtn" id="rt-principal" onclick="setRepay('principal')">원금균등상환</button>
+      </div>
+      <div class="panel-scroll">
+        <div class="badge" id="l-method-badge"><strong>원리금균등상환</strong><span style="margin-left:5px;">— 매달 동일한 금액 납입</span></div>
+        <div class="ig3">
+          <div><label>대출금 (억원)</label><div class="input-wrap"><input type="number" id="l-amount" value="3" step="0.1" min="0.1"/><span class="input-hint" id="hint-l-amount">3억원</span></div></div>
+          <div><label>연 이자율 (%)</label><div class="input-wrap"><input type="number" id="l-rate" value="4.5" step="0.1" min="0.1" max="30"/><span class="input-hint" id="hint-l-rate">4.5%</span></div></div>
+          <div><label>대출 기간 (년)</label><div class="input-wrap"><input type="number" id="l-years" value="30" step="1" min="1" max="50"/><span class="input-hint" id="hint-l-years">30년</span></div></div>
         </div>
-        <div class="repay-toggle">
-          <button class="rtbtn active" onclick="setRepay(this,'원리금균등상환')">원리금균등상환</button>
-          <button class="rtbtn" onclick="setRepay(this,'원금균등상환')">원금균등상환</button>
-        </div>
-        <div class="panel-scroll">
-          <div class="badge"><strong>원리금균등상환</strong><span style="margin-left:4px;">— 매달 동일한 금액 납입</span></div>
-          <div class="input-grid-3">
-            <div><label>대출금 (억원)</label><div class="input-wrap"><input type="number" value="3" step="0.1"/><span class="input-hint">3억원</span></div></div>
-            <div><label>연 이자율 (%)</label><div class="input-wrap"><input type="number" value="4.5" step="0.1"/><span class="input-hint">4.5%</span></div></div>
-            <div><label>대출 기간 (년)</label><div class="input-wrap"><input type="number" value="30"/><span class="input-hint">30년</span></div></div>
+        <div class="sl-sec">
+          <div class="sl-hdr"><label>연 이자율</label><span class="sl-val" id="l-rateOut">4.5%</span></div>
+          <input type="range" id="l-rateSlider" min="1" max="15" step="0.1" value="4.5" oninput="lSyncRate(this.value)" onkeydown="return false;"/>
+          <div class="btn-row">
+            <button class="sbtn" id="lrb2" onclick="lSetRate(2)">2%</button>
+            <button class="sbtn" id="lrb3" onclick="lSetRate(3)">3%</button>
+            <button class="sbtn" id="lrb4" onclick="lSetRate(4)">4%</button>
+            <button class="sbtn" id="lrb5" onclick="lSetRate(5)">5%</button>
+            <button class="sbtn" id="lrb6" onclick="lSetRate(6)">6%</button>
           </div>
-          <div class="slider-section">
-            <div class="slider-header"><label>연 이자율</label><span class="slider-val">4.5%</span></div>
-            <input type="range" min="1" max="15" step="0.1" value="4.5"/>
-            <div class="btn-row">
-              <button class="sbtn">2%</button><button class="sbtn">3%</button>
-              <button class="sbtn active">4%</button><button class="sbtn">5%</button><button class="sbtn">6%</button>
+        </div>
+        <div class="sl-sec">
+          <div class="sl-hdr"><label>대출 기간</label><span class="sl-val" id="l-yearsOut">30년</span></div>
+          <input type="range" id="l-yearsSlider" min="1" max="50" step="1" value="30" oninput="lSyncYears(this.value)" onkeydown="return false;"/>
+          <div class="btn-row">
+            <button class="sbtn" id="lyb10" onclick="lSetYears(10)">10년</button>
+            <button class="sbtn" id="lyb15" onclick="lSetYears(15)">15년</button>
+            <button class="sbtn" id="lyb20" onclick="lSetYears(20)">20년</button>
+            <button class="sbtn" id="lyb30" onclick="lSetYears(30)">30년</button>
+            <button class="sbtn" id="lyb50" onclick="lSetYears(50)">50년</button>
+          </div>
+        </div>
+        <div class="cards c3">
+          <div class="card"><div class="card-label">월 납입금</div><div class="card-value r" id="l-monthly">-</div></div>
+          <div class="card"><div class="card-label">총 납입금</div><div class="card-value" id="l-totalPay">-</div></div>
+          <div class="card"><div class="card-label">총 이자</div><div class="card-value r" id="l-totalInt">-</div></div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut-box">
+            <canvas id="lDonut" width="180" height="180"></canvas>
+            <div class="donut-center">
+              <div class="donut-label">이자 비율</div>
+              <div class="donut-pct" id="lIntRatio">-</div>
             </div>
           </div>
-          <div class="slider-section">
-            <div class="slider-header"><label>대출 기간</label><span class="slider-val">30년</span></div>
-            <input type="range" min="1" max="50" value="30"/>
-            <div class="btn-row">
-              <button class="sbtn">10년</button><button class="sbtn">15년</button>
-              <button class="sbtn">20년</button><button class="sbtn active">30년</button><button class="sbtn">50년</button>
+          <div class="bar-breakdown">
+            <div class="bar-item">
+              <div class="bi-label">원금</div>
+              <div class="bar-track"><div class="bar-fill" id="lBarPrin" style="background:#B5D4F4;width:0%"></div></div>
+              <div class="bi-amt" id="lPrinAmt">-</div>
+            </div>
+            <div class="bar-item">
+              <div class="bi-label">총 이자</div>
+              <div class="bar-track"><div class="bar-fill" id="lBarInt" style="background:#E24B4A;width:0%"></div></div>
+              <div class="bi-amt" id="lIntAmt">-</div>
+            </div>
+            <!-- 원금균등 추가 정보 -->
+            <div id="l-principal-extra" style="display:none;">
+              <div class="bi-label" style="margin-top:6px;">첫달 납입금</div>
+              <div class="bi-amt" id="lFirstPay" style="font-size:13px;font-weight:600;color:var(--text-1);">-</div>
+              <div class="bi-label" style="margin-top:4px;">마지막달 납입금</div>
+              <div class="bi-amt" id="lLastPay" style="font-size:13px;font-weight:600;color:var(--text-1);">-</div>
+              <div class="bi-amt" style="margin-top:4px;color:var(--green);font-weight:600;" id="lIntSaving">-</div>
             </div>
           </div>
-          <div class="cards cards-3">
-            <div class="card"><div class="card-label">월 납입금</div><div class="card-value r">152만원</div></div>
-            <div class="card"><div class="card-label">총 납입금</div><div class="card-value">5억 4,720만원</div></div>
-            <div class="card"><div class="card-label">총 이자</div><div class="card-value r">2억 4,720만원</div></div>
+        </div>
+        <div class="chart-wrap h240"><canvas id="lChart"></canvas></div>
+        <div class="legend">
+          <span><span class="ldot" style="background:#B5D4F4"></span>원금 상환</span>
+          <span><span class="ldot" style="background:#E24B4A"></span>이자</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 복리 계산기 ══ -->
+    <div id="panel-compound" class="panel">
+      <div class="panel-head">
+        <div class="panel-title">복리 계산기</div>
+        <div class="panel-desc">초기 투자금과 월 납입금을 기준으로 복리 수익을 시뮬레이션해요</div>
+      </div>
+      <div class="panel-scroll">
+        <div class="ig">
+          <div><label>초기 투자금 (원)</label><div class="input-wrap"><input type="number" id="c-principal" value="10000000" step="1000000"/><span class="input-hint" id="hint-c-principal">1,000만원</span></div></div>
+          <div><label>월 추가 납입 (원)</label><div class="input-wrap"><input type="number" id="c-monthly" value="500000" step="100000"/><span class="input-hint" id="hint-c-monthly">50만원</span></div></div>
+        </div>
+        <div class="sl-sec">
+          <div class="sl-hdr"><label>연 수익률</label><span class="sl-val" id="c-rateOut">10%</span></div>
+          <input type="range" id="c-rate" min="1" max="20" step="1" value="10" oninput="cSyncRate(this.value)" onkeydown="return false;"/>
+          <div class="btn-row">
+            <button class="sbtn" id="crb1" onclick="cSetRate(1)">1%</button>
+            <button class="sbtn" id="crb5" onclick="cSetRate(5)">5%</button>
+            <button class="sbtn" id="crb10" onclick="cSetRate(10)">10%</button>
+            <button class="sbtn" id="crb15" onclick="cSetRate(15)">15%</button>
+            <button class="sbtn" id="crb20" onclick="cSetRate(20)">20%</button>
           </div>
-          <div class="chart-box h-md"><span class="chart-ph">도넛 차트 + 연도별 막대 차트</span></div>
+        </div>
+        <div class="sl-sec">
+          <div class="sl-hdr"><label>투자 기간</label><span class="sl-val" id="c-yearsOut">20년</span></div>
+          <input type="range" id="c-years" min="1" max="40" step="1" value="20" oninput="cSyncYears(this.value)" onkeydown="return false;"/>
+          <div class="btn-row">
+            <button class="sbtn" id="cyb1" onclick="cSetYears(1)">1년</button>
+            <button class="sbtn" id="cyb5" onclick="cSetYears(5)">5년</button>
+            <button class="sbtn" id="cyb10" onclick="cSetYears(10)">10년</button>
+            <button class="sbtn" id="cyb20" onclick="cSetYears(20)">20년</button>
+            <button class="sbtn" id="cyb40" onclick="cSetYears(40)">40년</button>
+          </div>
+        </div>
+        <div class="cards c3">
+          <div class="card"><div class="card-label">최종 자산</div><div class="card-value" id="c-totalVal">-</div></div>
+          <div class="card"><div class="card-label">총 납입금</div><div class="card-value" id="c-investedVal">-</div></div>
+          <div class="card"><div class="card-label">수익 (수익률)</div><div class="card-value g" id="c-gainVal">-</div></div>
+        </div>
+        <div class="chart-wrap h240"><canvas id="cChart"></canvas></div>
+        <div class="legend">
+          <span><span class="ldot" style="background:#1D9E75"></span>수익</span>
+          <span><span class="ldot" style="background:#B5D4F4"></span>납입금</span>
+        </div>
+        <div class="ref info">⚠ <strong>세전 수익률</strong> 기준입니다. 실제 수익에는 거래 수수료·배당소득세·양도소득세 등이 부과될 수 있어요.<br>
+        <span style="opacity:.7;font-size:10px;">S&amp;P 500 10년 평균 +13.1% / 20년 +9.8% · 나스닥 100 10년 평균 +18.5% / 20년 +15.2%</span></div>
+      </div>
+    </div>
+
+    <!-- ══ 배당 계산기 ══ -->
+    <div id="panel-dividend" class="panel">
+      <div class="panel-head">
+        <div class="panel-title">배당 계산기</div>
+        <div class="panel-desc">배당 수익과 재투자(DRIP) 효과를 시뮬레이션해요</div>
+      </div>
+      <div class="panel-scroll">
+        <!-- 입력 방식 토글 -->
+        <div class="mode-bar">
+          <button class="mode-btn active" id="di-amount" onclick="dSwitchInput('amount')">투자금액 + 배당수익률</button>
+          <button class="mode-btn" id="di-shares" onclick="dSwitchInput('shares')">주식수량 + 주당배당금</button>
+        </div>
+        <div id="d-input-amount">
+          <div class="ig">
+            <div><label>투자 금액 (원)</label><div class="input-wrap"><input type="number" id="d-amount" value="10000000" step="1000000"/><span class="input-hint" id="hint-d-amount">1,000만원</span></div></div>
+            <div><label>배당 수익률 (%)</label><input type="number" id="d-yield" value="4" step="0.1" min="0.1" max="30"/></div>
+          </div>
+        </div>
+        <div id="d-input-shares" style="display:none;">
+          <div class="ig">
+            <div><label>보유 주식 수량 (주)</label><div class="input-wrap"><input type="number" id="d-shares" value="100" step="1" min="1"/><span class="input-hint" id="hint-d-shares">100주</span></div></div>
+            <div><label>주당 배당금 (원)</label><div class="input-wrap"><input type="number" id="d-pershare" value="2000" step="100" min="1"/><span class="input-hint" id="hint-d-pershare">2,000원</span></div></div>
+          </div>
+        </div>
+        <div class="ig3">
+          <div><label>배당 지급 주기</label>
+            <select id="d-freq">
+              <option value="12">월배당</option>
+              <option value="4" selected>분기배당</option>
+              <option value="2">반기배당</option>
+              <option value="1">연배당</option>
+            </select>
+          </div>
+          <div><label>배당 재투자</label>
+            <select id="d-drip">
+              <option value="1">재투자 (DRIP)</option>
+              <option value="0">재투자 없음</option>
+            </select>
+          </div>
+          <div><label>투자 기간 (년)</label><div class="input-wrap"><input type="number" id="d-years" value="20" step="1" min="1" max="40"/><span class="input-hint" id="hint-d-years">20년</span></div></div>
+        </div>
+        <div class="sl-sec">
+          <div class="sl-hdr"><label>투자 기간</label><span class="sl-val" id="d-yearsOut">20년</span></div>
+          <input type="range" id="d-yearsSlider" min="1" max="40" step="1" value="20" oninput="dSyncYears(this.value)" onkeydown="return false;"/>
+          <div class="btn-row">
+            <button class="sbtn" id="dyb1" onclick="dSetYears(1)">1년</button>
+            <button class="sbtn" id="dyb5" onclick="dSetYears(5)">5년</button>
+            <button class="sbtn" id="dyb10" onclick="dSetYears(10)">10년</button>
+            <button class="sbtn" id="dyb20" onclick="dSetYears(20)">20년</button>
+            <button class="sbtn" id="dyb40" onclick="dSetYears(40)">40년</button>
+          </div>
+        </div>
+        <!-- 세금 공제 -->
+        <div class="opt-box">
+          <label><input type="checkbox" id="d-tax-on" onchange="dToggleTax(this.checked)"/>세금 공제 적용</label>
+          <div id="d-tax-rate-wrap" style="display:none;align-items:center;gap:6px;">
+            <span style="font-size:12px;color:var(--text-2);">세율</span>
+            <input type="number" id="d-tax-rate" value="15.4" step="0.1" min="0" max="60"
+              style="width:68px;font-size:13px;padding:4px 7px;border:.5px solid var(--border-2);border-radius:6px;background:var(--input-bg);color:var(--text-1);" oninput="dUpdate()"/>
+            <span style="font-size:12px;color:var(--text-2);">%</span>
+          </div>
+          <span id="d-tax-badge" class="tax-badge" style="display:none;">연 배당 2,000만원 초과 → 종합과세 대상</span>
+        </div>
+        <div class="cards c4">
+          <div class="card"><div class="card-label">연간 배당금<span id="d-tax-label" style="font-size:10px;color:var(--red);margin-left:3px;"></span></div><div class="card-value am" id="d-annual">-</div></div>
+          <div class="card"><div class="card-label">월 환산 배당금</div><div class="card-value am" id="d-monthly">-</div></div>
+          <div class="card"><div class="card-label">총 배당 수령액</div><div class="card-value" id="d-total">-</div></div>
+          <div class="card"><div class="card-label">재투자 최종자산</div><div class="card-value g" id="d-drip-val">-</div></div>
+        </div>
+        <div class="chart-wrap h240"><canvas id="dChart"></canvas></div>
+        <div class="legend" id="d-legend">
+          <span><span class="ldot" style="background:#BA7517"></span>배당 재투자(DRIP)</span>
+          <span><span class="ldot" style="background:#B5D4F4"></span>배당 비재투자</span>
+          <span><span class="ldot" style="background:#e8e8e6;border:1px solid #ccc"></span>원금</span>
+        </div>
+        <div class="ref info">📌 배당금에는 <strong>배당소득세 15.4%</strong>(소득세 14% + 지방소득세 1.4%)가 원천징수됩니다.<br>
+        연간 금융소득이 2,000만원 초과 시 종합과세 대상 · SCHD 배당 3.4% / VOO 1.2% / JEPI 8.3%</div>
+      </div>
+    </div>
+
+    <!-- ══ 세금 계산기 ══ -->
+    <div id="panel-tax" class="panel">
+      <div class="panel-head">
+        <div class="panel-title">세금 계산기</div>
+        <div class="panel-desc">근로소득세 · 양도소득세 · 금융소득세를 계산해요</div>
+      </div>
+      <div class="sub-tabs">
+        <button class="stab act-amber" data-tax="earned">근로소득세</button>
+        <button class="stab" data-tax="capital">양도소득세</button>
+        <button class="stab" data-tax="finance">금융소득세</button>
+      </div>
+      <div class="panel-scroll">
+        <!-- 근로소득세 -->
+        <div id="tax-earned">
+          <div class="ref warn" style="margin-bottom:10px;">📋 <strong>간이세액표 기준</strong> 산출값입니다. 연말정산 결과와 다를 수 있으며, 최종 세액은 연말정산 시 확정됩니다.</div>
+          <div class="ig">
+            <div><label>연봉 (만원)</label><div class="input-wrap"><input type="number" id="te-salary" value="5000" step="100"/><span class="input-hint" id="hint-te-salary">5,000만원</span></div></div>
+            <div><label>부양가족 수 (본인 포함)</label><input type="number" id="te-family" value="1" min="1" max="20"/></div>
+          </div>
+          <div class="ig">
+            <div><label>20세 이하 자녀 수</label><input type="number" id="te-child" value="0" min="0"/></div>
+            <div><label>비과세 소득 (만원/월)</label><input type="number" id="te-nontax" value="20" step="1"/></div>
+          </div>
+          <div class="cards c3">
+            <div class="card"><div class="card-label">예상 실수령액 (월)</div><div class="card-value g" id="te-net">-</div><div class="card-sub" id="te-net-annual">-</div></div>
+            <div class="card"><div class="card-label">월 총 공제액</div><div class="card-value r" id="te-total-ded">-</div><div class="card-sub" id="te-total-ded-annual">-</div></div>
+            <div class="card"><div class="card-label">실효세율</div><div class="card-value am" id="te-eff">-</div></div>
+          </div>
+          <div class="tax-rows" id="te-rows"></div>
+        </div>
+        <!-- 양도소득세 -->
+        <div id="tax-capital" style="display:none;">
+          <div class="ig">
+            <div><label>취득가액 (만원)</label><div class="input-wrap"><input type="number" id="tc-buy" value="30000" step="100"/><span class="input-hint" id="hint-tc-buy">3억원</span></div></div>
+            <div><label>양도가액 (만원)</label><div class="input-wrap"><input type="number" id="tc-sell" value="50000" step="100"/><span class="input-hint" id="hint-tc-sell">5억원</span></div></div>
+          </div>
+          <div class="ig">
+            <div><label>자산 종류</label>
+              <select id="tc-type">
+                <option value="stock_foreign">주식 (해외)</option>
+                <option value="stock_domestic">주식 (국내 대주주)</option>
+                <option value="realestate_1">부동산 (1주택)</option>
+                <option value="realestate_multi">부동산 (다주택)</option>
+              </select>
+            </div>
+            <div><label>보유 기간</label>
+              <select id="tc-hold">
+                <option value="0">1년 미만</option>
+                <option value="1">1~2년</option>
+                <option value="3" selected>3년 이상</option>
+                <option value="5">5년 이상</option>
+                <option value="10">10년 이상</option>
+              </select>
+            </div>
+          </div>
+          <div class="cards c3">
+            <div class="card"><div class="card-label">양도 차익</div><div class="card-value" id="tc-gain">-</div></div>
+            <div class="card"><div class="card-label">과세표준</div><div class="card-value" id="tc-taxbase">-</div></div>
+            <div class="card"><div class="card-label">납부 세액</div><div class="card-value r" id="tc-tax">-</div></div>
+          </div>
+          <div class="tax-rows" id="tc-rows"></div>
+          <div class="ref info" style="margin-top:8px;">
+            📋 <strong>해외주식</strong> 기본공제 250만원 · 세율 22%(소득세 20% + 지방세 2%)<br>
+            <strong>부동산</strong> 3년 이상 보유 시 장기보유특별공제 적용 · 다주택 조정지역 +20%p 중과<br>
+            <span style="font-size:10px;opacity:.7;">2024년 세법 기준 · 취득비용·필요경비는 별도 공제 가능</span>
+          </div>
+        </div>
+        <!-- 금융소득세 -->
+        <div id="tax-finance" style="display:none;">
+          <div class="ig">
+            <div><label>배당소득 (만원/연)</label><div class="input-wrap"><input type="number" id="tf-dividend" value="2500" step="100"/><span class="input-hint" id="hint-tf-dividend">2,500만원</span></div></div>
+            <div><label>이자소득 (만원/연)</label><div class="input-wrap"><input type="number" id="tf-interest" value="500" step="100"/><span class="input-hint" id="hint-tf-interest">500만원</span></div></div>
+          </div>
+          <div class="ig">
+            <div><label>다른 종합소득 과세표준 (만원)</label><input type="number" id="tf-other" value="0" step="100"/></div>
+            <div><label>적용 세율</label>
+              <select id="tf-rate-type">
+                <option value="sep">분리과세 (15.4%)</option>
+                <option value="comp" selected>종합과세 (누진세율)</option>
+              </select>
+            </div>
+          </div>
+          <div class="cards c3">
+            <div class="card"><div class="card-label">금융소득 합계</div><div class="card-value" id="tf-total">-</div></div>
+            <div class="card"><div class="card-label">원천징수 기납부</div><div class="card-value am" id="tf-withheld">-</div><div class="card-sub">기납부세액</div></div>
+            <div class="card"><div class="card-label">추가 납부 / 환급</div><div class="card-value" id="tf-extra">-</div></div>
+          </div>
+          <div id="tf-notice" class="ref ok" style="margin-top:4px;display:none;"></div>
+          <div class="ref info" style="margin-top:8px;">
+            📌 금융소득 2,000만원 이하: 분리과세 15.4% 적용 (추가 납부 없음)<br>
+            2,000만원 초과분은 다른 소득과 합산해 종합과세 · <strong>환급 가능성이 있어요</strong><br>
+            <span style="font-size:10px;opacity:.7;">다른 종합소득이 있는 경우 결과가 달라질 수 있습니다</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 퇴직금 계산기 ══ -->
+    <div id="panel-retire" class="panel">
+      <div class="panel-head">
+        <div class="panel-title">퇴직금 계산기</div>
+        <div class="panel-desc">평균 임금과 근속연수로 법정 퇴직금과 세금을 계산해요</div>
+      </div>
+      <div class="panel-scroll">
+        <div class="ig">
+          <div><label>월 평균 임금 (만원)</label><div class="input-wrap"><input type="number" id="rt-wage" value="400" step="10"/><span class="input-hint" id="hint-rt-wage">400만원</span></div></div>
+          <div><label>근속연수 (년)</label><div class="input-wrap"><input type="number" id="rt-years" value="10" step="1" min="1"/><span class="input-hint" id="hint-rt-years">10년</span></div></div>
+        </div>
+        <div class="ig">
+          <div><label>연간 상여금 (만원)</label><input type="number" id="rt-bonus" value="0" step="100"/></div>
+          <div><label>연차 미사용 수당 (만원/연)</label><input type="number" id="rt-leave" value="0" step="10"/></div>
+        </div>
+        <div class="cards c2">
+          <div class="card"><div class="card-label">법정 퇴직금</div><div class="card-value g" id="rt-pay">-</div><div class="card-sub">근속 1년당 30일치 평균임금</div></div>
+          <div class="card"><div class="card-label">1일 평균임금</div><div class="card-value" id="rt-daily">-</div><div class="card-sub">최근 3개월 ÷ 91.3일</div></div>
+        </div>
+        <hr/>
+        <div style="font-size:12.5px;font-weight:700;color:var(--text-1);margin-bottom:10px;">💼 수령 방식별 세금</div>
+        <div class="ig">
+          <div><label>수령 방식</label>
+            <select id="rt-recv">
+              <option value="lump">일시금 수령</option>
+              <option value="annuity">연금 수령 (10년 이상)</option>
+            </select>
+          </div>
+          <div><label>근속연수 (세금 계산용)</label><input type="number" id="rt-years-tax" value="10" step="1" min="1"/></div>
+        </div>
+        <div class="cards c3">
+          <div class="card"><div class="card-label">퇴직소득세</div><div class="card-value r" id="rt-tax">-</div></div>
+          <div class="card"><div class="card-label">실수령 퇴직금</div><div class="card-value g" id="rt-net">-</div></div>
+          <div class="card"><div class="card-label">실효세율</div><div class="card-value am" id="rt-eff">-</div></div>
+        </div>
+        <div class="ref info">
+          📌 <strong>퇴직금 공식:</strong> 1일 평균임금 × 30일 × 근속연수<br>
+          1일 평균임금 = 최근 3개월 임금 합계 ÷ 91.3일 (365 ÷ 4)<br>
+          ✅ 연금 수령(10년 이상) 시 퇴직소득세 <strong style="color:var(--green)">30% 감면</strong><br>
+          ⚠ 1년 미만 근속 시 퇴직금 미발생 · 실제 금액은 회사 규정에 따라 달라질 수 있습니다
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 연금 계산기 ══ -->
+    <div id="panel-pension" class="panel">
+      <div class="panel-head">
+        <div class="panel-title">연금 계산기</div>
+        <div class="panel-desc">국민연금 예상 수령액과 개인연금 적립을 시뮬레이션해요</div>
+      </div>
+      <div class="sub-tabs">
+        <button class="stab act-purple" data-pension="national">국민연금</button>
+        <button class="stab" data-pension="private">개인연금 (IRP · 연금저축)</button>
+      </div>
+      <div class="panel-scroll">
+        <!-- 국민연금 -->
+        <div id="pension-national">
+          <div class="ig">
+            <div><label>현재 나이</label><input type="number" id="pn-age" value="35" min="18" max="59"/></div>
+            <div><label>월 평균 소득 (만원)</label><div class="input-wrap"><input type="number" id="pn-income" value="350" step="10" min="37" max="590"/><span class="input-hint" id="hint-pn-income">350만원</span></div></div>
+          </div>
+          <div class="ig">
+            <div><label>납입 기간 (년)</label><input type="number" id="pn-years" value="10" step="1" min="1" max="42"/></div>
+            <div><label>수령 시작 나이</label>
+              <select id="pn-recv-age">
+                <option value="62">62세 (조기수령 -6%)</option>
+                <option value="63">63세 (조기수령 -3%)</option>
+                <option value="65" selected>65세 (정상수령)</option>
+                <option value="66">66세 (연기수령 +7.2%)</option>
+                <option value="70">70세 (연기수령 +36%)</option>
+              </select>
+            </div>
+          </div>
+          <div class="cards c3">
+            <div class="card"><div class="card-label">예상 월 수령액</div><div class="card-value pu" id="pn-monthly">-</div><div class="card-sub" id="pn-recv-age-label">65세 기준</div></div>
+            <div class="card"><div class="card-label">총 납입 보험료</div><div class="card-value" id="pn-total-prem">-</div><div class="card-sub">본인 부담 4.5%</div></div>
+            <div class="card"><div class="card-label">손익분기</div><div class="card-value g" id="pn-bep">-</div><div class="card-sub">수령 후 원금 회수</div></div>
+          </div>
+          <div class="chart-wrap h180"><canvas id="pnChart"></canvas></div>
           <div class="legend">
-            <span><span class="ldot" style="background:#B5D4F4"></span>원금 상환</span>
-            <span><span class="ldot" style="background:#E24B4A"></span>이자</span>
+            <span><span class="ldot" style="background:#7C5CBF"></span>누적 수령액</span>
+            <span><span class="ldot" style="background:#E24B4A;opacity:.5"></span>납입 보험료</span>
+          </div>
+          <div class="ref info">
+            📌 <strong>국민연금공단 공식 수식</strong> (2024년 기준): 기본연금액 = 1.2 × (A + 0.75×B) × 가입월수/480<br>
+            A: 전체가입자 평균소득 298.9만원 · B: 본인 기준소득월액 (상한 590만 / 하한 37만원)<br>
+            ⚠ 수령 연령은 출생연도에 따라 다릅니다 (1969년생 이후 65세)<br>
+            <span style="font-size:10px;opacity:.7;">정확한 수령액은 국민연금공단 내연금산정 서비스에서 확인하세요</span>
           </div>
         </div>
-      </div>
-
-      <!-- ── 복리 계산기 ── -->
-      <div id="panel-compound" class="panel">
-        <div class="panel-head">
-          <div class="panel-title">복리 계산기</div>
-          <div class="panel-desc">초기 투자금과 월 납입금을 기준으로 복리 수익을 시뮬레이션해요</div>
-        </div>
-        <div class="panel-scroll">
-          <div class="input-grid">
-            <div><label>초기 투자금 (원)</label><div class="input-wrap"><input type="number" value="10000000"/><span class="input-hint">1,000만원</span></div></div>
-            <div><label>월 추가 납입 (원)</label><div class="input-wrap"><input type="number" value="500000"/><span class="input-hint">50만원</span></div></div>
+        <!-- 개인연금 -->
+        <div id="pension-private" style="display:none;">
+          <div class="ig">
+            <div><label>현재 나이</label><input type="number" id="pp-age" value="35" min="18" max="60"/></div>
+            <div><label>연금 수령 나이</label><input type="number" id="pp-recv-age" value="65" min="55" max="80"/></div>
           </div>
-          <div class="slider-section">
-            <div class="slider-header"><label>연 수익률</label><span class="slider-val">7%</span></div>
-            <input type="range" min="1" max="20" value="7"/>
-            <div class="btn-row">
-              <button class="sbtn">1%</button><button class="sbtn">5%</button>
-              <button class="sbtn active">10%</button><button class="sbtn">15%</button><button class="sbtn">20%</button>
+          <div class="ig">
+            <div><label>월 납입액 (만원)</label><div class="input-wrap"><input type="number" id="pp-monthly" value="50" step="5" min="1"/><span class="input-hint" id="hint-pp-monthly">50만원</span></div></div>
+            <div><label>예상 수익률 (%)</label><input type="number" id="pp-rate" value="5" step="0.1" min="0.1" max="20"/></div>
+          </div>
+          <div class="ig">
+            <div><label>수령 기간 (년)</label><input type="number" id="pp-recv-years" value="20" step="1" min="1" max="40"/></div>
+            <div><label>세액공제 한도</label>
+              <select id="pp-credit-type">
+                <option value="irp" selected>IRP + 연금저축 (연 900만원)</option>
+                <option value="saving">연금저축만 (연 600만원)</option>
+              </select>
             </div>
           </div>
-          <div class="slider-section">
-            <div class="slider-header"><label>투자 기간</label><span class="slider-val">20년</span></div>
-            <input type="range" min="1" max="40" value="20"/>
-            <div class="btn-row">
-              <button class="sbtn">1년</button><button class="sbtn">5년</button>
-              <button class="sbtn">10년</button><button class="sbtn active">20년</button><button class="sbtn">40년</button>
-            </div>
+          <div class="cards c3">
+            <div class="card"><div class="card-label">적립 원금</div><div class="card-value" id="pp-principal">-</div></div>
+            <div class="card"><div class="card-label">수령 시 자산</div><div class="card-value pu" id="pp-asset">-</div></div>
+            <div class="card"><div class="card-label">예상 월 수령액</div><div class="card-value g" id="pp-monthly-recv">-</div></div>
           </div>
-          <div class="cards cards-3">
-            <div class="card"><div class="card-label">최종 자산</div><div class="card-value">4억 5,297만원</div></div>
-            <div class="card"><div class="card-label">총 납입금</div><div class="card-value">1억 3,000만원</div></div>
-            <div class="card"><div class="card-label">수익 (수익률)</div><div class="card-value g">+248%</div></div>
+          <div class="cards c2">
+            <div class="card"><div class="card-label">연간 세액공제 혜택</div><div class="card-value bl" id="pp-annual-credit">-</div><div class="card-sub" id="pp-total-credit-sub">-</div></div>
+            <div class="card"><div class="card-label">세액공제 반영 기간</div><div class="card-value" id="pp-save-years">-</div><div class="card-sub">적립 기간</div></div>
           </div>
-          <div class="chart-box h-md"><span class="chart-ph">연도별 스택 막대 차트</span></div>
-          <div class="ref">⚠ 이 계산기는 <strong>세전 수익률</strong> 기준입니다. 실제 수익에는 거래 수수료·배당소득세·양도소득세 등이 부과될 수 있어요. 과거 수익률이 미래 수익을 보장하지 않습니다.</div>
-        </div>
-      </div>
-
-      <!-- ── 배당 계산기 ── -->
-      <div id="panel-dividend" class="panel">
-        <div class="panel-head">
-          <div class="panel-title">배당 계산기</div>
-          <div class="panel-desc">배당 수익과 재투자(DRIP) 효과를 시뮬레이션해요</div>
-        </div>
-        <div class="panel-scroll">
-          <div class="input-grid">
-            <div><label>투자 금액 (원)</label><div class="input-wrap"><input type="number" value="10000000"/><span class="input-hint">1,000만원</span></div></div>
-            <div><label>배당 수익률 (%)</label><input type="number" value="4" step="0.1"/></div>
-          </div>
-          <div class="input-grid-3">
-            <div><label>배당 지급 주기</label><select><option>월배당</option><option selected>분기배당</option><option>연배당</option></select></div>
-            <div><label>배당 재투자</label><select><option>재투자 (DRIP)</option><option>재투자 없음</option></select></div>
-            <div><label>투자 기간 (년)</label><input type="number" value="20"/></div>
-          </div>
-          <div class="cards cards-4">
-            <div class="card"><div class="card-label">연간 배당금</div><div class="card-value am">40만원</div></div>
-            <div class="card"><div class="card-label">월 환산</div><div class="card-value am">3.3만원</div></div>
-            <div class="card"><div class="card-label">총 수령액</div><div class="card-value">800만원</div></div>
-            <div class="card"><div class="card-label">재투자 최종자산</div><div class="card-value g">2,217만원</div></div>
-          </div>
-          <div class="chart-box h-md"><span class="chart-ph">DRIP vs 비재투자 비교 차트</span></div>
-          <div class="ref">📌 배당금에는 <strong>배당소득세 15.4%</strong>(소득세 14% + 지방소득세 1.4%)가 원천징수됩니다. 연간 금융소득이 2,000만원을 초과하면 종합과세 대상이 돼요. 세금 공제 옵션을 활성화하면 세후 금액으로 계산됩니다.</div>
-        </div>
-      </div>
-
-      <!-- ── 세금 계산기 ── -->
-      <div id="panel-tax" class="panel">
-        <div class="panel-head">
-          <div class="panel-title">세금 계산기</div>
-          <div class="panel-desc">근로소득세 · 양도소득세 · 금융소득세를 계산해요</div>
-        </div>
-        <div class="sub-tabs">
-          <button class="stab active-amber" data-tax="earned">근로소득세</button>
-          <button class="stab" data-tax="capital">양도소득세</button>
-          <button class="stab" data-tax="finance">금융소득세</button>
-        </div>
-        <div class="panel-scroll">
-          <!-- 근로소득세 -->
-          <div id="tax-earned">
-            <div class="input-grid">
-              <div><label>연봉 (만원)</label><div class="input-wrap"><input type="number" value="5000"/><span class="input-hint">5,000만원</span></div></div>
-              <div><label>부양가족 수 (본인 포함)</label><input type="number" value="1" min="1"/></div>
-            </div>
-            <div class="input-grid">
-              <div><label>20세 이하 자녀 수</label><input type="number" value="0" min="0"/></div>
-              <div><label>비과세 소득 (만원)</label><input type="number" value="240"/></div>
-            </div>
-            <div class="cards cards-3">
-              <div class="card"><div class="card-label">예상 실수령액 (월)</div><div class="card-value g">347만원</div><div class="card-sub">연 4,164만원</div></div>
-              <div class="card"><div class="card-label">월 총 공제액</div><div class="card-value r">69만원</div><div class="card-sub">연 828만원</div></div>
-              <div class="card"><div class="card-label">실효세율</div><div class="card-value am">6.0%</div></div>
-            </div>
-            <div class="ref" style="margin-bottom:10px;">📋 <strong>간이세액표 기준</strong> 산출값입니다. 실제 연말정산 결과와 다를 수 있으며, 최종 세액은 연말정산 시 확정됩니다. 부양가족·공제 항목에 따라 환급 또는 추가납부가 발생할 수 있어요.</div>
-            <div class="tax-rows">
-              <div class="tax-row"><span class="tl">국민연금 (4.5%)</span><span class="tv">18.8만원</span></div>
-              <div class="tax-row"><span class="tl">건강보험 (3.545%)</span><span class="tv">14.8만원</span></div>
-              <div class="tax-row"><span class="tl">장기요양보험</span><span class="tv">1.9만원</span></div>
-              <div class="tax-row"><span class="tl">고용보험 (0.9%)</span><span class="tv">3.8만원</span></div>
-              <div class="tax-row"><span class="tl">근로소득세 (간이세액표)</span><span class="tv">27.4만원</span></div>
-              <div class="tax-row"><span class="tl">지방소득세 (10%)</span><span class="tv">2.7만원</span></div>
-              <div class="tax-row total"><span class="tl">월 총 공제</span><span class="tv">69.3만원</span></div>
-            </div>
-          </div>
-          <!-- 양도소득세 -->
-          <div id="tax-capital" style="display:none;">
-            <div class="input-grid">
-              <div><label>취득가액 (만원)</label><input type="number" value="30000"/></div>
-              <div><label>양도가액 (만원)</label><input type="number" value="50000"/></div>
-            </div>
-            <div class="input-grid">
-              <div><label>자산 종류</label><select><option>주식 (국내 대주주)</option><option>주식 (해외)</option><option>부동산 (1주택)</option><option>부동산 (다주택)</option></select></div>
-              <div><label>보유 기간</label><select><option>1년 미만</option><option>1~2년</option><option selected>2년 이상</option></select></div>
-            </div>
-            <div class="cards cards-3">
-              <div class="card"><div class="card-label">양도 차익</div><div class="card-value">2억원</div></div>
-              <div class="card"><div class="card-label">과세표준</div><div class="card-value">1억 9,750만원</div></div>
-              <div class="card"><div class="card-label">납부 세액</div><div class="card-value r">4,345만원</div></div>
-            </div>
-            <div class="chart-box h-sm"><span class="chart-ph">과세표준 구간별 세율 차트</span></div>
-            <div class="ref">📋 <strong>해외주식:</strong> 양도차익 - 기본공제 250만원 × 세율 22% (소득세 20% + 지방세 2%)<br>
-            <strong>국내 대주주:</strong> 20% (과세표준 3억 이하) / 25% (3억 초과) + 지방소득세 10%<br>
-            <strong>부동산:</strong> 기본세율 누진 + 다주택 중과 (조정대상지역 +20%p)<br>
-            ⚠ 장기보유특별공제: 부동산 3년 이상 보유 시 연 6%씩 최대 30% 공제 (1주택 거주 시 연 4%, 최대 80%)<br>
-            <span style="font-size:10px;opacity:.6;">2024년 세법 기준. 실제 세액은 취득비용·필요경비 공제 등에 따라 달라질 수 있습니다.</span></div>
-          </div>
-          <!-- 금융소득세 -->
-          <div id="tax-finance" style="display:none;">
-            <div class="input-grid">
-              <div><label>배당소득 (만원)</label><input type="number" value="2500"/></div>
-              <div><label>이자소득 (만원)</label><input type="number" value="500"/></div>
-            </div>
-            <div class="cards cards-3">
-              <div class="card"><div class="card-label">금융소득 합계</div><div class="card-value">3,000만원</div></div>
-              <div class="card"><div class="card-label">원천징수 기납부세액</div><div class="card-value am">462만원</div><div class="card-sub">3,000만 × 15.4%</div></div>
-              <div class="card"><div class="card-label">종합과세 산출세액</div><div class="card-value">374만원</div><div class="card-sub">비교과세 적용</div></div>
-            </div>
-            <div class="ref" style="margin-bottom:10px;background:rgba(29,158,117,.08);border-left:3px solid var(--green);padding-left:12px;">
-              ✅ 원천징수 기납부세액(462만원)이 종합과세 산출세액(374만원)보다 많아 <strong>추가 납부 없음</strong>. 오히려 환급 가능성이 있어요.<br>
-              <span style="font-size:10px;opacity:.7;">* 다른 종합소득이 있을 경우 결과가 달라질 수 있습니다</span>
-            </div>
-            <div class="chart-box h-sm"><span class="chart-ph">분리과세 vs 종합과세 비교</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── 퇴직금 계산기 ── -->
-      <div id="panel-retire" class="panel">
-        <div class="panel-head">
-          <div class="panel-title">퇴직금 계산기</div>
-          <div class="panel-desc">평균 임금과 근속연수로 법정 퇴직금과 세금을 계산해요</div>
-        </div>
-        <div class="panel-scroll">
-          <div class="input-grid">
-            <div><label>월 평균 임금 (만원)</label><div class="input-wrap"><input type="number" value="400"/><span class="input-hint">400만원</span></div></div>
-            <div><label>근속연수 (년)</label><div class="input-wrap"><input type="number" value="10"/><span class="input-hint">10년</span></div></div>
-          </div>
-          <div class="input-grid">
-            <div><label>연간 상여금 총액 (만원)</label><input type="number" value="0"/></div>
-            <div><label>연차 미사용 수당 (만원)</label><input type="number" value="0"/></div>
-          </div>
-          <div class="cards cards-2">
-            <div class="card"><div class="card-label">법정 퇴직금</div><div class="card-value g">3,943만원</div><div class="card-sub">근속 1년당 30일치 평균임금</div></div>
-            <div class="card"><div class="card-label">1일 평균임금</div><div class="card-value">13.14만원</div><div class="card-sub">최근 3개월 ÷ 91.3일</div></div>
-          </div>
-          <hr/>
-          <div style="font-size:12.5px;font-weight:700;color:var(--text-1);margin-bottom:10px;">IRP 수령 시 세금</div>
-          <div class="input-grid">
-            <div><label>수령 방식</label><select><option>일시금 수령</option><option>연금 수령 (10년 이상)</option></select></div>
-            <div><label>근속연수 (세금 계산용)</label><input type="number" value="10"/></div>
-          </div>
-          <div class="cards cards-3">
-            <div class="card"><div class="card-label">퇴직소득세</div><div class="card-value r">76만원</div></div>
-            <div class="card"><div class="card-label">실수령 퇴직금</div><div class="card-value g">3,867만원</div></div>
-            <div class="card"><div class="card-label">실효세율</div><div class="card-value am">1.9%</div></div>
-          </div>
-          <div class="ref">📌 <strong>퇴직금 공식:</strong> 1일 평균임금 × 30일 × 근속연수<br>
-            1일 평균임금 = 최근 3개월 임금 합계 ÷ 3개월 일수(91.3일)<br>
-            ✅ 연금 수령(10년 이상) 시 퇴직소득세 <strong style="color:var(--green)">30% 감면</strong> 혜택<br>
-            ⚠ 1년 미만 근속 시 퇴직금 미발생. 계속근로기간 1년 이상부터 적용됩니다.<br>
-            <span style="font-size:10px;opacity:.6;">본 계산기는 2024년 세법 기준이며 실제 금액은 회사 규정 및 근로계약에 따라 달라질 수 있습니다.</span></div>
-        </div>
-      </div>
-
-      <!-- ── 연금 계산기 ── -->
-      <div id="panel-pension" class="panel">
-        <div class="panel-head">
-          <div class="panel-title">연금 계산기</div>
-          <div class="panel-desc">국민연금 수령액과 개인연금 적립을 시뮬레이션해요</div>
-        </div>
-        <div class="sub-tabs">
-          <button class="stab active-purple" data-pension="national">국민연금</button>
-          <button class="stab" data-pension="private">개인연금 (IRP · 연금저축)</button>
-        </div>
-        <div class="panel-scroll">
-          <!-- 국민연금 -->
-          <div id="pension-national">
-            <div class="input-grid">
-              <div><label>현재 나이</label><input type="number" value="35" min="18" max="59"/></div>
-              <div><label>월 평균 소득 (만원)</label><div class="input-wrap"><input type="number" value="350"/><span class="input-hint">350만원</span></div></div>
-            </div>
-            <div class="input-grid">
-              <div><label>납입 기간 (년)</label><input type="number" value="10"/></div>
-              <div><label>예상 수령 나이</label><select><option>62세</option><option>63세</option><option selected>65세</option></select></div>
-            </div>
-            <div class="cards cards-3">
-              <div class="card"><div class="card-label">예상 월 수령액</div><div class="card-value pu">168만원</div><div class="card-sub">65세 기준</div></div>
-              <div class="card"><div class="card-label">총 납입 보험료</div><div class="card-value">1,890만원</div><div class="card-sub">본인 부담분 (4.5%)</div></div>
-              <div class="card"><div class="card-label">손익분기</div><div class="card-value g">0.9년</div><div class="card-sub">수령 시작 후 원금 회수</div></div>
-            </div>
-            <div class="chart-box h-md"><span class="chart-ph">나이별 누적 수령액 vs 납입액 차트</span></div>
-            <div class="ref">📌 <strong>국민연금공단 기본연금액 공식</strong> (2024년 기준) 적용<br>
-            기본연금액 = 1.2 × (A + 0.75×B) × 가입월수/480<br>
-            A: 전체 가입자 평균소득(298.9만원) · B: 본인 기준소득월액<br>
-            ⚠ 수령 개시 연령은 출생연도에 따라 다릅니다 (1969년생 이후 65세)<br>
-            <span style="font-size:10px;opacity:.6;">실제 수령액은 국민연금공단 내 연금산정 서비스에서 정확하게 확인하세요.</span></div>
-          </div>
-          <!-- 개인연금 -->
-          <div id="pension-private" style="display:none;">
-            <div class="input-grid">
-              <div><label>현재 나이</label><input type="number" value="35"/></div>
-              <div><label>연금 수령 나이</label><input type="number" value="65"/></div>
-            </div>
-            <div class="input-grid">
-              <div><label>월 납입액 (만원)</label><div class="input-wrap"><input type="number" value="50"/><span class="input-hint">50만원</span></div></div>
-              <div><label>예상 수익률 (%)</label><input type="number" value="5" step="0.1"/></div>
-            </div>
-            <div class="input-grid">
-              <div><label>수령 기간 (년)</label><input type="number" value="20"/></div>
-              <div><label>세액공제 한도</label><select><option>IRP+연금저축 (연 900만원)</option><option>연금저축만 (연 600만원)</option></select></div>
-            </div>
-            <div class="cards cards-3">
-              <div class="card"><div class="card-label">적립 원금</div><div class="card-value">1억 8,000만원</div></div>
-              <div class="card"><div class="card-label">수령 시 자산</div><div class="card-value pu">4억 1,786만원</div></div>
-              <div class="card"><div class="card-label">예상 월 수령액</div><div class="card-value g">276만원</div></div>
-            </div>
-            <div class="cards cards-2">
-              <div class="card"><div class="card-label">연간 세액공제 혜택</div><div class="card-value bl">99만원</div><div class="card-sub">30년간 총 2,970만원</div></div>
-              <div class="card"><div class="card-label">세액공제 반영 실효 수익률</div><div class="card-value g">+5.6%</div></div>
-            </div>
-            <div class="chart-box h-sm"><span class="chart-ph">연도별 적립 자산 성장 차트</span></div>
-            <div class="ref">✅ <strong>세액공제율 16.5%</strong> (총급여 5,500만원 이하 / 종합소득 4,500만원 이하 기준)<br>
-            총급여 5,500만원 초과 시 세액공제율 <strong>13.2%</strong> 적용<br>
-            📌 연금 수령 시 연금소득세 부과 (연금소득 1,500만원 이하 3.3~5.5%, 초과 시 종합과세)<br>
+          <div class="chart-wrap h180"><canvas id="ppChart"></canvas></div>
+          <div class="ref info">
+            ✅ <strong>세액공제율 16.5%</strong> (총급여 5,500만원 이하) · 초과 시 <strong>13.2%</strong><br>
+            📌 연금 수령 시 연금소득세 부과 (1,500만원 이하 3.3~5.5% · 초과 시 종합과세)<br>
             ⚠ 55세 이전 중도해지 시 기타소득세 16.5% 부과 (세액공제 혜택 전액 반환)<br>
-            <span style="font-size:10px;opacity:.6;">IRP는 퇴직급여 및 개인 납입금을 모두 운용 가능하며, 연금저축과 합산하여 세액공제 한도가 적용됩니다.</span></div>
+            <span style="font-size:10px;opacity:.7;">IRP는 퇴직급여와 개인 납입금을 모두 운용 가능 · 연금저축과 합산하여 한도 적용</span>
           </div>
         </div>
       </div>
+    </div>
 
-    </div><!-- /content-box -->
-  </div><!-- /main-area -->
+  </div><!-- /content-box -->
+</div><!-- /main-area -->
 </div><!-- /app-layout -->
 
-<!-- 플로팅 계산기 FAB -->
-<button class="calc-fab" id="calcFab" onclick="toggleCalc()" title="계산기">
-  <svg viewBox="0 0 24 24">
-    <rect x="4" y="3" width="16" height="18" rx="2.5"/>
+<!-- 플로팅 계산기 -->
+<button class="calc-fab" id="calcFab" onclick="calcToggle()" title="계산기">
+  <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/>
     <line x1="8" y1="8" x2="16" y2="8"/>
-    <circle cx="8"  cy="12" r=".8" fill="#fff"/>
-    <circle cx="12" cy="12" r=".8" fill="#fff"/>
-    <circle cx="16" cy="12" r=".8" fill="#fff"/>
-    <circle cx="8"  cy="16" r=".8" fill="#fff"/>
-    <circle cx="12" cy="16" r=".8" fill="#fff"/>
-    <circle cx="16" cy="16" r=".8" fill="#fff"/>
+    <circle cx="8" cy="12" r=".8" fill="#fff"/><circle cx="12" cy="12" r=".8" fill="#fff"/><circle cx="16" cy="12" r=".8" fill="#fff"/>
+    <circle cx="8" cy="16" r=".8" fill="#fff"/><circle cx="12" cy="16" r=".8" fill="#fff"/><circle cx="16" cy="16" r=".8" fill="#fff"/>
   </svg>
 </button>
-
-<!-- 계산기 패널 -->
 <div class="calc-panel" id="calcPanel">
   <div class="calc-display">
-    <div class="calc-expr">&nbsp;</div>
-    <div class="calc-num">0</div>
+    <div class="calc-expr" id="cExpr">&nbsp;</div>
+    <div class="calc-num" id="cNum">0</div>
   </div>
   <div class="calc-keys">
-    <button class="ck fn">AC</button><button class="ck fn">+/−</button>
-    <button class="ck fn">%</button><button class="ck op">÷</button>
-    <button class="ck">7</button><button class="ck">8</button>
-    <button class="ck">9</button><button class="ck op">×</button>
-    <button class="ck">4</button><button class="ck">5</button>
-    <button class="ck">6</button><button class="ck op">−</button>
-    <button class="ck">1</button><button class="ck">2</button>
-    <button class="ck">3</button><button class="ck op">+</button>
-    <button class="ck wide">0</button><button class="ck">.</button>
-    <button class="ck eq">=</button>
+    <button class="ck fn" onclick="ck('AC')">AC</button><button class="ck fn" onclick="ck('+/-')">+/−</button>
+    <button class="ck fn" onclick="ck('%')">%</button><button class="ck op" onclick="ck('/')">÷</button>
+    <button class="ck" onclick="ck('7')">7</button><button class="ck" onclick="ck('8')">8</button>
+    <button class="ck" onclick="ck('9')">9</button><button class="ck op" onclick="ck('*')">×</button>
+    <button class="ck" onclick="ck('4')">4</button><button class="ck" onclick="ck('5')">5</button>
+    <button class="ck" onclick="ck('6')">6</button><button class="ck op" onclick="ck('-')">−</button>
+    <button class="ck" onclick="ck('1')">1</button><button class="ck" onclick="ck('2')">2</button>
+    <button class="ck" onclick="ck('3')">3</button><button class="ck op" onclick="ck('+')">+</button>
+    <button class="ck wide" onclick="ck('0')">0</button>
+    <button class="ck" onclick="ck('.')">.</button>
+    <button class="ck eq" onclick="ck('=')">=</button>
   </div>
 </div>
 
 <script>
-/* ── 메뉴 전환 ── */
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const id    = btn.dataset.panel;
-    const label = btn.dataset.label;
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + id).classList.add('active');
-    document.getElementById('headerTitle').textContent = label;
-    // 헤더 배지: 대출만 표시
-    document.getElementById('headerBadge').style.display = id==='loan' ? '' : 'none';
-  });
-});
+'use strict';
+/* ════ 공통 유틸 ════ */
+const PAD={top:18,bottom:34,left:68,right:14,gap:28};
+const ANIM={};
 
-/* ── 대출 상환방식 토글 ── */
-function setRepay(btn, label){
-  document.querySelectorAll('.rtbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('headerBadge').textContent = label;
+function fmt(n){
+  if(isNaN(n)||n===null)return'-';
+  const abs=Math.abs(n);
+  const sign=n<0?'-':'';
+  if(abs>=1e8)return sign+(abs/1e8).toFixed(1)+'억원';
+  if(abs>=1e4)return sign+Math.round(abs/1e4)+'만원';
+  return sign+Math.round(abs).toLocaleString()+'원';
+}
+function fmtK(n){
+  const abs=Math.abs(n);
+  if(abs>=1e8)return(n/1e8).toFixed(1)+'억';
+  if(abs>=1e4)return Math.round(n/1e4)+'만';
+  return n.toLocaleString();
+}
+function niceNum(v){
+  if(v<=0)return 1;
+  const e=Math.floor(Math.log10(v)),f=v/Math.pow(10,e);
+  return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*Math.pow(10,e);
 }
 
-/* ── 세금 서브탭 ── */
-document.querySelectorAll('.stab[data-tax]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.stab[data-tax]').forEach(b => b.classList.remove('active-amber'));
-    btn.classList.add('active-amber');
-    ['earned','capital','finance'].forEach(k => {
-      document.getElementById('tax-'+k).style.display = k===btn.dataset.tax ? 'block' : 'none';
+/* 한글 금액 힌트 */
+function toKorean(n){
+  if(isNaN(n)||n===''||n===null)return'';
+  n=Math.abs(parseFloat(n));if(n===0)return'';
+  const jo=Math.floor(n/1e12),eok=Math.floor((n%1e12)/1e8),man=Math.floor((n%1e8)/1e4),rest=Math.floor(n%1e4);
+  let r='';
+  if(jo)r+=jo+'조 ';if(eok)r+=eok+'억 ';if(man)r+=man+'만 ';if(rest)r+=rest+' ';
+  return r.trim()+'원';
+}
+function toKoreanEok(n){if(isNaN(n)||n===null||n==='')return'';return toKorean(parseFloat(n)*1e8);}
+function toKoreanWan(n){if(isNaN(n)||n===null||n==='')return'';return toKorean(parseFloat(n)*1e4);}
+function setHint(id,val,type){
+  const el=document.getElementById('hint-'+id);if(!el)return;
+  let t='';
+  if(type==='won')t=val?toKorean(val):'';
+  else if(type==='eok')t=val?toKoreanEok(val):'';
+  else if(type==='wan')t=val?toKoreanWan(val):'';
+  else if(type==='year')t=val?(val+'년'):'';
+  else if(type==='pct')t=val?(val+'%'):'';
+  else if(type==='shares')t=val?(Number(val).toLocaleString()+'주'):'';
+  el.textContent=t;
+}
+
+/* ════ 차트 렌더러 (애니메이션) ════ */
+function _drawChart(cid,data,tipIdx,progress){
+  const canvas=document.getElementById(cid);if(!canvas)return;
+  const wrap=canvas.parentElement,dpr=window.devicePixelRatio||1;
+  const W=wrap.clientWidth,H=wrap.clientHeight;
+  if(canvas.width!==W*dpr||canvas.height!==H*dpr){canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';}
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.scale(dpr,dpr);
+  const cW=W-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const CT=isDark?'#888':'#888780',CG=isDark?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)';
+  const{labels,series}=data;
+  const from=ANIM[cid]?ANIM[cid].from:null;
+  const n=labels.length;
+  const t=Math.min(1,progress*progress*(3-2*progress));
+  function interp(cur,prev,i){
+    const c=cur.values[i]||0;
+    if(!prev||prev.values.length!==n)return c*t;
+    return(prev.values[i]||0)*(1-t)+c*t;
+  }
+  let maxVal=0;
+  series.forEach(s=>{
+    if(s.type==='bar')for(let i=0;i<n;i++){const stack=series.filter(ss=>ss.type==='bar').reduce((a,ss)=>a+(ss.values[i]||0),0);if(stack>maxVal)maxVal=stack;}
+    if(s.type==='line')s.values.forEach(v=>{if(v>maxVal)maxVal=v;});
+  });
+  const nMax=niceNum(maxVal*1.08),yStep=nMax/4;
+  const BAR_W=Math.max(2,Math.floor(cW/n*.68)),sp=cW/(n-1||1);
+  const lstep=Math.max(1,Math.ceil(PAD.gap/sp));
+  function show(i){if(i%lstep===0)return true;if(i===n-1){const pv=Math.floor((n-2)/lstep)*lstep;return(i-pv)*sp>=PAD.gap;}return false;}
+  ctx.font='11px -apple-system,sans-serif';
+  for(let i=0;i<=4;i++){
+    const val=yStep*i,y=PAD.top+cH-(val/nMax)*cH;
+    ctx.strokeStyle=CG;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(PAD.left+cW,y);ctx.stroke();
+    ctx.fillStyle=CT;ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(fmtK(val),PAD.left-6,y);
+  }
+  const barSeries=series.filter(s=>s.type==='bar');
+  const fromBar=from?from.filter(s=>s.type==='bar'):null;
+  for(let i=0;i<n;i++){
+    const x=PAD.left+(i/(n-1||1))*cW-BAR_W/2;let baseY=PAD.top+cH;
+    barSeries.forEach((s,si)=>{
+      const h=(interp(s,fromBar?fromBar[si]:null,i)/nMax)*cH;
+      if(h<.5)return;
+      ctx.fillStyle=s.color;ctx.beginPath();
+      ctx.roundRect?ctx.roundRect(x,baseY-h,BAR_W,h,[2,2,0,0]):ctx.rect(x,baseY-h,BAR_W,h);
+      ctx.fill();baseY-=h;
+    });
+    if(show(i)){ctx.fillStyle=CT;ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(labels[i],x+BAR_W/2,PAD.top+cH+7);}
+  }
+  const lineSeries=series.filter(s=>s.type==='line');
+  const fromLine=from?from.filter(s=>s.type==='line'):null;
+  lineSeries.forEach((s,si)=>{
+    const fs=fromLine?fromLine[si]:null;
+    ctx.save();ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.setLineDash(s.dash||[]);
+    ctx.beginPath();
+    s.values.forEach((cv,i)=>{
+      const v=interp(s,fs,i),x=PAD.left+(i/(n-1||1))*cW,y=PAD.top+cH-(v/nMax)*cH;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.restore();
+  });
+  if(tipIdx>=0&&tipIdx<n&&progress>=1){
+    const bx=PAD.left+(tipIdx/(n-1||1))*cW;
+    const stackH=barSeries.reduce((a,s)=>a+(s.values[tipIdx]||0),0);
+    const lineMax=Math.max(...lineSeries.map(s=>s.values[tipIdx]||0),stackH);
+    const topY=PAD.top+cH-(lineMax/nMax)*cH;
+    ctx.save();ctx.strokeStyle='rgba(100,100,100,.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(bx,PAD.top);ctx.lineTo(bx,PAD.top+cH);ctx.stroke();ctx.restore();
+    const TBG=isDark?'#2e2e2e':'#fff',TTX=isDark?'#e8e8e6':'#1a1a1a',TSB=isDark?'#aaa':'#555',TBR=isDark?'rgba(255,255,255,.15)':'rgba(0,0,0,.12)';
+    const lines=data.tooltipLines(tipIdx);
+    ctx.save();ctx.font='bold 12px -apple-system,sans-serif';
+    const mW=Math.max(...lines.map(l=>ctx.measureText(l.text).width));
+    const TW=mW+24,TH=lines.length*18+16;
+    let tx=bx+12;if(tx+TW>W-PAD.right)tx=bx-TW-12;
+    let ty=topY-TH-8;if(ty<PAD.top)ty=topY+8;if(ty+TH>PAD.top+cH)ty=PAD.top+cH-TH;
+    ctx.shadowColor=isDark?'rgba(0,0,0,.6)':'rgba(0,0,0,.12)';ctx.shadowBlur=10;
+    ctx.fillStyle=TBG;ctx.strokeStyle=TBR;ctx.lineWidth=.5;
+    ctx.beginPath();ctx.roundRect?ctx.roundRect(tx,ty,TW,TH,7):ctx.rect(tx,ty,TW,TH);
+    ctx.fill();ctx.shadowBlur=0;ctx.stroke();
+    ctx.textAlign='left';ctx.textBaseline='top';
+    lines.forEach((l,i)=>{
+      ctx.font=l.bold?'bold 12px -apple-system,sans-serif':'11px -apple-system,sans-serif';
+      ctx.fillStyle=l.color||(l.bold?TTX:TSB);
+      ctx.fillText(l.text,tx+12,ty+10+i*18);
+    });ctx.restore();
+  }
+}
+function renderChart(cid,data,tipIdx){
+  const DURATION=380;
+  const state=ANIM[cid];
+  let fromSeries=null;
+  if(state&&state.raf){
+    cancelAnimationFrame(state.raf);
+    const el=(performance.now()-state.st)/DURATION;
+    const p=Math.min(1,el);const t2=p*p*(3-2*p);
+    fromSeries=state.toData.series.map((s,si)=>{
+      const fs=state.from?state.from[si]:null;
+      return{...s,values:s.values.map((cv,i)=>{
+        const fv=fs&&fs.values.length===s.values.length?fs.values[i]||0:0;
+        return fv*(1-t2)+cv*t2;
+      })};
+    });
+  } else if(state) fromSeries=state.toData.series;
+  ANIM[cid]={from:fromSeries,toData:data,raf:null,st:performance.now()};
+  const st=ANIM[cid];
+  function tick(now){
+    const prog=(now-st.st)/DURATION;
+    _drawChart(cid,data,tipIdx,Math.min(prog,1));
+    if(prog<1)st.raf=requestAnimationFrame(tick);
+    else{st.raf=null;}
+  }
+  st.raf=requestAnimationFrame(tick);
+}
+function makeTip(cid,getData,renderFn){
+  const canvas=document.getElementById(cid);if(!canvas)return;
+  let hi=-1;
+  function getIdx(e){
+    const d=getData();if(!d)return -1;
+    const W=canvas.parentElement.clientWidth,cW=W-PAD.left-PAD.right;
+    const rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left;
+    const n=d.labels.length,sp=cW/(n-1||1);
+    let cl=-1,md=Infinity;
+    for(let i=0;i<n;i++){const bx=PAD.left+i*sp,dist=Math.abs(mx-bx);if(dist<md){md=dist;cl=i;}}
+    return md<sp*.65?cl:-1;
+  }
+  function tipDraw(idx){
+    const d=getData();if(!d)return;
+    const st=ANIM[cid];if(st&&st.raf){cancelAnimationFrame(st.raf);st.raf=null;}
+    _drawChart(cid,d,idx,1);
+  }
+  canvas.addEventListener('mousemove',e=>{const idx=getIdx(e);if(idx!==hi){hi=idx;tipDraw(hi);}});
+  canvas.addEventListener('mouseleave',()=>{if(hi!==-1){hi=-1;tipDraw(-1);}});
+}
+
+/* ════ 사이드 메뉴 ════ */
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+    document.getElementById('headerTitle').textContent=btn.dataset.label;
+    const badge=document.getElementById('headerBadge');
+    badge.textContent=btn.dataset.badge||'';
+    badge.style.display=btn.dataset.badge?'':'none';
+    setTimeout(()=>reRenderActive(),30);
+  });
+});
+function reRenderActive(){
+  const p=document.querySelector('.panel.active');
+  if(!p)return;
+  const id=p.id;
+  if(id==='panel-loan')lRenderChart(-1);
+  else if(id==='panel-compound')cRenderChart(-1);
+  else if(id==='panel-dividend')dRenderChart(-1);
+  else if(id==='panel-pension'){
+    const nat=document.getElementById('pension-national');
+    if(nat.style.display!=='none')pnRenderChart(-1);
+    else ppRenderChart(-1);
+  }
+}
+
+/* ════ 세금 서브탭 ════ */
+document.querySelectorAll('.stab[data-tax]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.stab[data-tax]').forEach(b=>b.classList.remove('act-amber'));
+    btn.classList.add('act-amber');
+    ['earned','capital','finance'].forEach(k=>{
+      document.getElementById('tax-'+k).style.display=k===btn.dataset.tax?'block':'none';
     });
   });
 });
-
-/* ── 연금 서브탭 ── */
-document.querySelectorAll('.stab[data-pension]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.stab[data-pension]').forEach(b => b.classList.remove('active-purple'));
-    btn.classList.add('active-purple');
-    ['national','private'].forEach(k => {
-      document.getElementById('pension-'+k).style.display = k===btn.dataset.pension ? 'block' : 'none';
-    });
+/* 연금 서브탭 */
+document.querySelectorAll('.stab[data-pension]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.stab[data-pension]').forEach(b=>b.classList.remove('act-purple'));
+    btn.classList.add('act-purple');
+    document.getElementById('pension-national').style.display=btn.dataset.pension==='national'?'block':'none';
+    document.getElementById('pension-private').style.display=btn.dataset.pension==='private'?'block':'none';
+    setTimeout(()=>{
+      if(btn.dataset.pension==='national')pnRenderChart(-1);
+      else ppRenderChart(-1);
+    },30);
   });
 });
 
-/* ── 다크모드 ── */
+/* ════ 다크모드 ════ */
 function toggleTheme(){
-  const html  = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  const next  = isDark ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  document.getElementById('themeIcon').textContent  = next==='dark' ? '☀️' : '🌙';
-  document.getElementById('themeLabel').textContent = next==='dark' ? '라이트 모드' : '다크 모드';
-  try{ localStorage.setItem('theme', next); }catch(e){}
+  const html=document.documentElement;
+  const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeIcon').textContent=next==='dark'?'☀️':'🌙';
+  document.getElementById('themeLabel').textContent=next==='dark'?'라이트 모드':'다크 모드';
+  try{localStorage.setItem('theme',next);}catch(e){}
+  setTimeout(()=>reRenderActive(),30);
+  drawDonut();
 }
 (function(){
-  let s; try{s=localStorage.getItem('theme');}catch(e){}
-  if(!s) s = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', s);
-  document.getElementById('themeIcon').textContent  = s==='dark' ? '☀️' : '🌙';
-  document.getElementById('themeLabel').textContent = s==='dark' ? '라이트 모드' : '다크 모드';
+  let s;try{s=localStorage.getItem('theme');}catch(e){}
+  if(!s)s=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',s);
+  document.getElementById('themeIcon').textContent=s==='dark'?'☀️':'🌙';
+  document.getElementById('themeLabel').textContent=s==='dark'?'라이트 모드':'다크 모드';
 })();
 
-/* ── 계산기 FAB ── */
-let calcOpen = false;
-function toggleCalc(){
-  calcOpen = !calcOpen;
-  document.getElementById('calcPanel').classList.toggle('open', calcOpen);
-}
-document.addEventListener('click', e => {
-  if(!calcOpen) return;
-  const p = document.getElementById('calcPanel');
-  const f = document.getElementById('calcFab');
-  if(!p.contains(e.target) && !f.contains(e.target)){
-    calcOpen = false; p.classList.remove('open');
+/* ════ 대출 계산기 ════ */
+let lRepayMode='equal';
+const LOAN={data:null};
+const lRP=[2,3,4,5,6],lYP=[10,15,20,30,50];
+
+function setRepay(mode){
+  lRepayMode=mode;
+  document.getElementById('rt-equal').classList.toggle('active',mode==='equal');
+  document.getElementById('rt-principal').classList.toggle('active',mode==='principal');
+  const badge=document.getElementById('l-method-badge');
+  const extra=document.getElementById('l-principal-extra');
+  if(mode==='equal'){
+    badge.innerHTML='<strong>원리금균등상환</strong><span style="margin-left:5px;">— 매달 동일한 금액 납입</span>';
+    extra.style.display='none';
+  } else {
+    badge.innerHTML='<strong>원금균등상환</strong><span style="margin-left:5px;">— 원금 고정 + 이자 감소</span>';
+    extra.style.display='block';
   }
+  document.getElementById('headerBadge').textContent=mode==='equal'?'원리금균등상환':'원금균등상환';
+  lUpdate();
+}
+function lSyncRate(v){
+  v=parseFloat(parseFloat(v).toFixed(1));
+  document.getElementById('l-rateOut').textContent=v+'%';
+  document.getElementById('l-rate').value=v;
+  setHint('l-rate',v,'pct');
+  lRP.forEach(p=>document.getElementById('lrb'+p).classList.toggle('active',p===v));
+  lUpdate();
+}
+function lSetRate(v){document.getElementById('l-rateSlider').value=v;lSyncRate(v);document.getElementById('l-rateSlider').focus();}
+function lSyncYears(v){
+  v=parseInt(v);
+  document.getElementById('l-yearsOut').textContent=v+'년';
+  document.getElementById('l-years').value=v;
+  setHint('l-years',v,'year');
+  lYP.forEach(p=>document.getElementById('lyb'+p).classList.toggle('active',p===v));
+  lUpdate();
+}
+function lSetYears(v){document.getElementById('l-yearsSlider').value=v;lSyncYears(v);document.getElementById('l-yearsSlider').focus();}
+
+['l-amount','l-rate','l-years'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){
+    if(id==='l-rate'){const v=parseFloat(this.value)||0;document.getElementById('l-rateSlider').value=Math.min(15,Math.max(1,v));document.getElementById('l-rateOut').textContent=v+'%';lRP.forEach(p=>document.getElementById('lrb'+p).classList.toggle('active',p===v));}
+    if(id==='l-years'){const v=parseInt(this.value)||0;document.getElementById('l-yearsSlider').value=Math.min(50,Math.max(1,v));document.getElementById('l-yearsOut').textContent=v+'년';lYP.forEach(p=>document.getElementById('lyb'+p).classList.toggle('active',p===v));}
+    lUpdate();
+  });
+});
+document.getElementById('l-amount').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.round(((parseFloat(this.value)||0)+.1)*10)/10;setHint('l-amount',this.value,'eok');lUpdate();}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(.1,Math.round(((parseFloat(this.value)||0)-.1)*10)/10);setHint('l-amount',this.value,'eok');lUpdate();}
+});
+document.getElementById('l-rate').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.round(((parseFloat(this.value)||0)+.1)*10)/10;setHint('l-rate',this.value,'pct');lSyncRate(this.value);}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(.1,Math.round(((parseFloat(this.value)||0)-.1)*10)/10);setHint('l-rate',this.value,'pct');lSyncRate(this.value);}
+});
+document.getElementById('l-years').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.min(50,(parseInt(this.value)||0)+1);setHint('l-years',this.value,'year');lSyncYears(this.value);}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(1,(parseInt(this.value)||0)-1);setHint('l-years',this.value,'year');lSyncYears(this.value);}
+});
+document.getElementById('l-rateSlider').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'){e.preventDefault();const v=Math.min(15,Math.round((parseFloat(this.value)+.1)*10)/10);this.value=v;lSyncRate(v);}
+  if(e.key==='ArrowLeft'){e.preventDefault();const v=Math.max(1,Math.round((parseFloat(this.value)-.1)*10)/10);this.value=v;lSyncRate(v);}
+});
+document.getElementById('l-yearsSlider').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'){e.preventDefault();const v=Math.min(50,parseInt(this.value)+1);this.value=v;lSyncYears(v);}
+  if(e.key==='ArrowLeft'){e.preventDefault();const v=Math.max(1,parseInt(this.value)-1);this.value=v;lSyncYears(v);}
+});
+
+let _donutData={prin:0,int:0};
+function drawDonut(){
+  const{prin,int}=_donutData;
+  const canvas=document.getElementById('lDonut');if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=180*dpr;canvas.height=180*dpr;canvas.style.width='180px';canvas.style.height='180px';
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.scale(dpr,dpr);
+  const tot=prin+int;if(tot===0)return;
+  const cx=90,cy=90,R=72,r=46,s=-Math.PI/2;
+  [[prin/tot*Math.PI*2,'#B5D4F4'],[int/tot*Math.PI*2,'#E24B4A']].reduce((acc,[a,c])=>{
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,acc,acc+a);ctx.closePath();ctx.fillStyle=c;ctx.fill();return acc+a;
+  },s);
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=isDark?'#1c1c1c':'#fff';ctx.fill();
+}
+function lRenderChart(tip){if(!LOAN.data)return;renderChart('lChart',LOAN.data,tip);}
+makeTip('lChart',()=>LOAN.data,lRenderChart);
+
+function lUpdate(){
+  const A=(parseFloat(document.getElementById('l-amount').value)||0)*1e8;
+  const r=parseFloat(document.getElementById('l-rate').value)||0;
+  const Y=parseInt(document.getElementById('l-years').value)||1;
+  const months=Y*12,mr=r/100/12;
+  const yLabels=[],yPrin=[],yInt=[];
+  let totalInt=0,bal=A;
+
+  if(lRepayMode==='equal'){
+    // 원리금균등
+    const M=mr>0?A*mr*Math.pow(1+mr,months)/(Math.pow(1+mr,months)-1):A/months;
+    for(let y=0;y<Y;y++){
+      let yp=0,yi=0;
+      for(let m=0;m<12;m++){
+        const ii=Math.round(bal*mr),pp=Math.min(Math.round(M)-ii,bal);
+        bal=Math.max(0,bal-pp);yp+=pp;yi+=ii;totalInt+=ii;
+      }
+      yLabels.push((y+1)+'년');yPrin.push(yp);yInt.push(yi);
+    }
+    const intRatio=A>0?((totalInt/A)*100).toFixed(1):0;
+    document.getElementById('l-monthly').textContent=fmt(Math.round(M));
+    document.getElementById('l-totalPay').textContent=fmt(Math.round(M)*months);
+    document.getElementById('l-totalInt').textContent=fmt(totalInt);
+    document.getElementById('lIntRatio').textContent=intRatio+'%';
+  } else {
+    // 원금균등
+    const prinPerMonth=A/months;
+    const firstMonth=prinPerMonth+A*mr;
+    const lastMonth=prinPerMonth+prinPerMonth*mr;
+    for(let y=0;y<Y;y++){
+      let yp=0,yi=0;
+      for(let m=0;m<12;m++){
+        const ii=Math.round(bal*mr),pp=Math.round(prinPerMonth);
+        bal=Math.max(0,bal-pp);yp+=pp;yi+=ii;totalInt+=ii;
+      }
+      yLabels.push((y+1)+'년');yPrin.push(yp);yInt.push(yi);
+    }
+    const intRatio=A>0?((totalInt/A)*100).toFixed(1):0;
+    // 원리금균등 대비 이자 절감
+    const M_eq=mr>0?A*mr*Math.pow(1+mr,months)/(Math.pow(1+mr,months)-1):A/months;
+    let totalInt_eq=0,bal2=A;
+    for(let m=0;m<months;m++){const ii=Math.round(bal2*mr),pp=Math.min(Math.round(M_eq)-ii,bal2);bal2=Math.max(0,bal2-pp);totalInt_eq+=ii;}
+    const saving=totalInt_eq-totalInt;
+    document.getElementById('l-monthly').textContent='변동 (↓ 감소)';
+    document.getElementById('l-totalPay').textContent=fmt(A+totalInt);
+    document.getElementById('l-totalInt').textContent=fmt(totalInt);
+    document.getElementById('lIntRatio').textContent=intRatio+'%';
+    document.getElementById('lFirstPay').textContent='첫달: '+fmt(Math.round(firstMonth));
+    document.getElementById('lLastPay').textContent='마지막: '+fmt(Math.round(lastMonth));
+    document.getElementById('lIntSaving').textContent='원리금균등 대비 이자 '+fmt(Math.round(saving))+' 절감';
+  }
+  const tot=A+totalInt;
+  _donutData={prin:A,int:totalInt};
+  drawDonut();
+  document.getElementById('lBarPrin').style.width=(tot>0?(A/tot*100).toFixed(1):0)+'%';
+  document.getElementById('lBarInt').style.width=(tot>0?(totalInt/tot*100).toFixed(1):0)+'%';
+  document.getElementById('lPrinAmt').textContent=fmt(A);
+  document.getElementById('lIntAmt').textContent=fmt(totalInt);
+  LOAN.data={labels:yLabels,
+    series:[{type:'bar',values:yPrin,color:'#B5D4F4'},{type:'bar',values:yInt,color:'#E24B4A'}],
+    tooltipLines:(i)=>[
+      {text:yLabels[i],bold:true},
+      {text:'원금 상환: '+fmt(yPrin[i]),bold:false,color:'#378ADD'},
+      {text:'이자:     '+fmt(yInt[i]),bold:false,color:'#E24B4A'},
+      {text:'합계:     '+fmt(yPrin[i]+yInt[i]),bold:false},
+    ]};
+  lRenderChart(-1);
+}
+
+/* ════ 복리 계산기 ════ */
+const COMPOUND={data:null};
+const cRP=[1,5,10,15,20],cYP=[1,5,10,20,40];
+function cSyncRate(v){v=parseInt(v);document.getElementById('c-rateOut').textContent=v+'%';cRP.forEach(p=>document.getElementById('crb'+p).classList.toggle('active',p===v));cUpdate();}
+function cSetRate(v){document.getElementById('c-rate').value=v;cSyncRate(v);document.getElementById('c-rate').focus();}
+function cSyncYears(v){v=parseInt(v);document.getElementById('c-yearsOut').textContent=v+'년';cYP.forEach(p=>document.getElementById('cyb'+p).classList.toggle('active',p===v));cUpdate();}
+function cSetYears(v){document.getElementById('c-years').value=v;cSyncYears(v);document.getElementById('c-years').focus();}
+['c-principal','c-monthly'].forEach(id=>document.getElementById(id).addEventListener('input',function(){setHint(id.replace('-','_').replace('-','_'),this.value,'won');cUpdate();}));
+document.getElementById('c-principal').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.max(0,(parseInt(this.value)||0)+1000000);setHint('c-principal',this.value,'won');cUpdate();}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(0,(parseInt(this.value)||0)-1000000);setHint('c-principal',this.value,'won');cUpdate();}
+});
+document.getElementById('c-monthly').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.max(0,(parseInt(this.value)||0)+100000);setHint('c-monthly',this.value,'won');cUpdate();}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(0,(parseInt(this.value)||0)-100000);setHint('c-monthly',this.value,'won');cUpdate();}
+});
+document.getElementById('c-rate').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'){e.preventDefault();const v=Math.min(20,parseInt(this.value)+1);this.value=v;cSyncRate(v);}
+  if(e.key==='ArrowLeft'){e.preventDefault();const v=Math.max(1,parseInt(this.value)-1);this.value=v;cSyncRate(v);}
+});
+document.getElementById('c-years').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'){e.preventDefault();const v=Math.min(40,parseInt(this.value)+1);this.value=v;cSyncYears(v);}
+  if(e.key==='ArrowLeft'){e.preventDefault();const v=Math.max(1,parseInt(this.value)-1);this.value=v;cSyncYears(v);}
+});
+function cRenderChart(tip){if(!COMPOUND.data)return;renderChart('cChart',COMPOUND.data,tip);}
+makeTip('cChart',()=>COMPOUND.data,cRenderChart);
+function cUpdate(){
+  const P=parseFloat(document.getElementById('c-principal').value)||0;
+  const M=parseFloat(document.getElementById('c-monthly').value)||0;
+  const r=parseFloat(document.getElementById('c-rate').value)/100;
+  const Y=parseInt(document.getElementById('c-years').value);
+  const mr=r/12,labels=[],invested=[],gain=[],total=[];
+  for(let y=0;y<=Y;y++){
+    const n=y*12,fv=P*Math.pow(1+mr,n)+(mr>0?M*(Math.pow(1+mr,n)-1)/mr:M*n);
+    const inv=Math.round(P+M*n),t=Math.round(fv);
+    labels.push(y+'년');invested.push(inv);total.push(t);gain.push(Math.round(t-inv));
+  }
+  const fin=total[Y],finInv=invested[Y],finGain=gain[Y];
+  const pct=finInv>0?((finGain/finInv)*100).toFixed(1):0;
+  document.getElementById('c-totalVal').textContent=fmt(fin);
+  document.getElementById('c-investedVal').textContent=fmt(finInv);
+  document.getElementById('c-gainVal').textContent=fmt(finGain)+' (+'+pct+'%)';
+  COMPOUND.data={labels,
+    series:[{type:'bar',values:invested,color:'#B5D4F4'},{type:'bar',values:gain,color:'#1D9E75'}],
+    tooltipLines:(i)=>[
+      {text:labels[i],bold:true},
+      {text:'최종 자산: '+fmt(total[i]),bold:false},
+      {text:'납입금:   '+fmt(invested[i]),bold:false},
+      {text:'수익:     '+fmt(gain[i]),bold:false},
+    ]};
+  cRenderChart(-1);
+}
+
+/* ════ 배당 계산기 ════ */
+const DIVIDEND={data:null};
+let dInputMode='amount';
+const dYP=[1,5,10,20,40];
+function dSwitchInput(mode){
+  dInputMode=mode;
+  document.getElementById('di-amount').classList.toggle('active',mode==='amount');
+  document.getElementById('di-shares').classList.toggle('active',mode==='shares');
+  document.getElementById('d-input-amount').style.display=mode==='amount'?'':'none';
+  document.getElementById('d-input-shares').style.display=mode==='shares'?'':'none';
+  dUpdate();
+}
+function dSyncYears(v){
+  v=parseInt(v);document.getElementById('d-yearsOut').textContent=v+'년';
+  document.getElementById('d-years').value=v;setHint('d-years',v,'year');
+  dYP.forEach(p=>document.getElementById('dyb'+p).classList.toggle('active',p===v));dUpdate();
+}
+function dSetYears(v){document.getElementById('d-yearsSlider').value=v;dSyncYears(v);document.getElementById('d-yearsSlider').focus();}
+['d-amount','d-yield','d-shares','d-pershare','d-years'].forEach(id=>{
+  const el=document.getElementById(id);if(el)el.addEventListener('input',dUpdate);
+});
+document.getElementById('d-freq').addEventListener('change',dUpdate);
+document.getElementById('d-drip').addEventListener('change',dUpdate);
+document.getElementById('d-years').addEventListener('keydown',function(e){
+  if(e.key==='ArrowUp'){e.preventDefault();this.value=Math.min(40,(parseInt(this.value)||0)+1);dSyncYears(this.value);}
+  if(e.key==='ArrowDown'){e.preventDefault();this.value=Math.max(1,(parseInt(this.value)||0)-1);dSyncYears(this.value);}
+});
+document.getElementById('d-yearsSlider').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'){e.preventDefault();const v=Math.min(40,parseInt(this.value)+1);this.value=v;dSyncYears(v);}
+  if(e.key==='ArrowLeft'){e.preventDefault();const v=Math.max(1,parseInt(this.value)-1);this.value=v;dSyncYears(v);}
+});
+function dToggleTax(on){
+  document.getElementById('d-tax-rate-wrap').style.display=on?'flex':'none';
+  dUpdate();
+}
+function dRenderChart(tip){if(!DIVIDEND.data)return;renderChart('dChart',DIVIDEND.data,tip);}
+makeTip('dChart',()=>DIVIDEND.data,dRenderChart);
+function dUpdate(){
+  let invest=0,annualDivGross=0;
+  if(dInputMode==='amount'){
+    invest=parseFloat(document.getElementById('d-amount').value)||0;
+    annualDivGross=invest*(parseFloat(document.getElementById('d-yield').value)||0)/100;
+  } else {
+    const shares=parseFloat(document.getElementById('d-shares').value)||0;
+    const pershare=parseFloat(document.getElementById('d-pershare').value)||0;
+    annualDivGross=shares*pershare;
+    const dy=(parseFloat(document.getElementById('d-yield').value)||4)/100;
+    invest=dy>0?annualDivGross/dy:0;
+  }
+  const freq=parseInt(document.getElementById('d-freq').value)||4;
+  const drip=parseInt(document.getElementById('d-drip').value);
+  const Y=parseInt(document.getElementById('d-years').value)||1;
+  const taxOn=document.getElementById('d-tax-on').checked;
+  const taxRate=taxOn?(parseFloat(document.getElementById('d-tax-rate').value)||0)/100:0;
+  const annualDiv=Math.round(annualDivGross*(1-taxRate));
+  document.getElementById('d-tax-label').textContent=taxOn?('(세후 '+((1-taxRate)*100).toFixed(1)+'%)'):'';
+  const badge=document.getElementById('d-tax-badge');
+  badge.style.display=taxOn&&annualDivGross>=20000000?'':'none';
+
+  // DRIP: 올바른 복리 계산 — 원금이 재투자되어 자산이 복리로 성장
+  const qRate=(1-taxRate)*annualDivGross/invest/freq||0;
+  const labels=[],dripVals=[],noDripVals=[],princVals=[];
+  let cumDiv=0,dripAsset=invest;
+  labels.push('0년');dripVals.push(Math.round(invest));noDripVals.push(Math.round(invest));princVals.push(Math.round(invest));
+  for(let y=1;y<=Y;y++){
+    if(drip){dripAsset=invest*Math.pow(1+qRate,y*freq);}
+    else{dripAsset=invest;}
+    cumDiv+=annualDiv;
+    labels.push(y+'년');
+    dripVals.push(Math.round(dripAsset));
+    noDripVals.push(Math.round(invest+cumDiv));
+    princVals.push(Math.round(invest));
+  }
+  document.getElementById('d-annual').textContent=fmt(annualDiv)+(taxOn?' (세후)':' (세전)');
+  document.getElementById('d-monthly').textContent=fmt(Math.round(annualDiv/12));
+  document.getElementById('d-total').textContent=fmt(cumDiv);
+  document.getElementById('d-drip-val').textContent=fmt(Math.round(dripAsset));
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  DIVIDEND.data={labels,
+    series:[
+      {type:'bar',values:princVals,color:isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'},
+      {type:'bar',values:noDripVals.map((v,i)=>Math.max(0,v-princVals[i])),color:'#B5D4F4'},
+      {type:'line',values:dripVals,color:'#BA7517'},
+    ],
+    tooltipLines:(i)=>[
+      {text:labels[i],bold:true},
+      {text:'재투자 자산: '+fmt(dripVals[i]),bold:false,color:'#BA7517'},
+      {text:'비재투자:   '+fmt(noDripVals[i]),bold:false,color:'#378ADD'},
+      {text:'원금:       '+fmt(princVals[i]),bold:false},
+    ]};
+  dRenderChart(-1);
+}
+
+/* ════ 세금 — 근로소득세 ════ */
+function teUpdate(){
+  const sal=parseFloat(document.getElementById('te-salary').value)||0;
+  const family=Math.max(1,parseInt(document.getElementById('te-family').value)||1);
+  const child=Math.max(0,parseInt(document.getElementById('te-child').value)||0);
+  const nonTax=parseFloat(document.getElementById('te-nontax').value)||0;
+
+  const monthly=sal*10000/12;
+  // 4대보험
+  const NP_CAP=5900000,NP_FLOOR=370000;
+  const npBase=Math.max(NP_FLOOR,Math.min(NP_CAP,monthly));
+  const np=npBase*0.045,hi=monthly*0.03545,lc=hi*0.1281,ei=monthly*0.009;
+
+  // 간이세액표 근사 (월 과세급여 기준)
+  const base=monthly/10000-nonTax;
+  let tax=0;
+  if(base<=106)tax=0;
+  else if(base<=188)tax=2.376+(base-150)*0.06+(base<=150?-(150-base)*0.06+((base-106)*0.06*0.55-(base-106)*0.06):0);
+  else if(base<=188)tax=2.376+(base-150)*0.06;
+  else if(base<=250)tax=6.936+(base-188)*0.08;
+  else if(base<=300)tax=11.896+(base-250)*0.10;
+  else if(base<=400)tax=16.896+(base-300)*0.15;
+  else if(base<=500)tax=31.896+(base-400)*0.20;
+  else tax=51.896+(base-500)*0.25;
+
+  // 더 정확한 간이세액표 구간
+  tax=0;
+  if(base<=106)tax=0;
+  else if(base<=150)tax=Math.max(0,(base-106)*0.06*0.55-(family-1)*0.5);
+  else if(base<=188)tax=Math.max(0,2.376+(base-150)*0.06-(family-1)*1.0);
+  else if(base<=250)tax=Math.max(0,4.656+(base-188)*0.08-(family-1)*1.5);
+  else if(base<=300)tax=Math.max(0,9.616+(base-250)*0.10-(family-1)*2.0);
+  else if(base<=400)tax=Math.max(0,14.616+(base-300)*0.15-(family-1)*2.5);
+  else if(base<=500)tax=Math.max(0,29.616+(base-400)*0.20-(family-1)*3.0);
+  else tax=Math.max(0,49.616+(base-500)*0.25-(family-1)*3.0);
+
+  // 자녀세액공제 (월 기준)
+  const childCredit=(child===1?1.25:child===2?2.92:child>=3?2.92+(child-2)*2.5:0);
+  tax=Math.max(0,tax-childCredit);
+  const local=tax*0.10;
+
+  const totalDed=np+hi+lc+ei+tax*10000+local*10000;
+  const net=monthly-totalDed;
+  const effRate=(tax+local)/(sal/12)*100;
+
+  document.getElementById('te-net').textContent=fmt(Math.round(net));
+  document.getElementById('te-net-annual').textContent='연 '+fmt(Math.round(net)*12);
+  document.getElementById('te-total-ded').textContent=fmt(Math.round(totalDed));
+  document.getElementById('te-total-ded-annual').textContent='연 '+fmt(Math.round(totalDed)*12);
+  document.getElementById('te-eff').textContent=(tax+local>0?effRate.toFixed(1):'0.0')+'%';
+
+  const rows=[
+    ['국민연금 (4.5%)',np,''],
+    ['건강보험 (3.545%)',hi,''],
+    ['장기요양보험 (건보료×12.81%)',lc,''],
+    ['고용보험 (0.9%)',ei,''],
+    ['근로소득세 (간이세액표)',tax*10000,''],
+    ['지방소득세 (10%)',local*10000,''],
+  ];
+  document.getElementById('te-rows').innerHTML=
+    rows.map(([l,v])=>`<div class="tax-row"><span class="tl">${l}</span><span class="tv">${fmt(Math.round(v))}</span></div>`).join('')+
+    `<div class="tax-row total"><span class="tl">월 총 공제</span><span class="tv">${fmt(Math.round(totalDed))}</span></div>`;
+}
+['te-salary','te-family','te-child','te-nontax'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    el.addEventListener('input',teUpdate);
+    if(id==='te-salary')el.addEventListener('input',()=>setHint('te-salary',document.getElementById('te-salary').value*10000,'won'));
+  }
+});
+
+/* ════ 세금 — 양도소득세 ════ */
+function tcUpdate(){
+  const buy=parseFloat(document.getElementById('tc-buy').value)||0;
+  const sell=parseFloat(document.getElementById('tc-sell').value)||0;
+  const type=document.getElementById('tc-type').value;
+  const holdYrs=parseInt(document.getElementById('tc-hold').value)||0;
+  const gain=sell-buy;
+  if(gain<=0){
+    ['tc-gain','tc-taxbase','tc-tax'].forEach(id=>document.getElementById(id).textContent=id==='tc-gain'?fmt(gain):'-');
+    document.getElementById('tc-rows').innerHTML='';return;
+  }
+  // 공제
+  let basicDed=0,longDed=0,rate=0,note='';
+  if(type==='stock_foreign'){basicDed=250;rate=0.22;note='해외주식 22% (소득세20%+지방2%)';}
+  else if(type==='stock_domestic'){basicDed=250;rate=gain-basicDed<=30000?0.22:0.275;note='국내대주주 '+(gain-basicDed<=30000?'22%':'27.5%');}
+  else if(type==='realestate_1'){
+    basicDed=0;
+    const longRate=holdYrs>=10?0.80:holdYrs>=5?0.20+(holdYrs-2)*0.04:holdYrs>=3?0.12:0;
+    longDed=gain*longRate;
+    note='1주택 장기보유공제 '+(longRate*100).toFixed(0)+'%';
+    rate=0;// 기본세율 누진
+  }
+  else{// 다주택
+    basicDed=0;
+    const longRate=holdYrs>=3?Math.min(0.30,(holdYrs-2)*0.06):0;
+    longDed=gain*longRate;
+    note='다주택 중과 (+20%p)';rate=0;
+  }
+  const taxableBase=Math.max(0,gain-basicDed-longDed);
+  function btTc(t){
+    if(t<=1400)return t*0.06;if(t<=5000)return 84+(t-1400)*0.15;
+    if(t<=8800)return 624+(t-5000)*0.24;if(t<=15000)return 1536+(t-8800)*0.35;
+    if(t<=30000)return 3706+(t-15000)*0.38;if(t<=50000)return 9406+(t-30000)*0.40;
+    return 17406+(t-50000)*0.42;
+  }
+  let taxIncome,localTax;
+  if(rate>0){taxIncome=taxableBase*rate/(1.1);localTax=taxIncome*0.1;taxIncome=taxableBase*rate-localTax;}
+  else{
+    const base=btTc(taxableBase);
+    const extra=type==='realestate_multi'?taxableBase*0.20:0;
+    taxIncome=(base+extra);localTax=taxIncome*0.10;
+  }
+  // 해외/국내주식은 지방세 포함한 세율
+  let totalTax;
+  if(type==='stock_foreign'){totalTax=taxableBase*0.22;}
+  else if(type==='stock_domestic'){totalTax=taxableBase*(taxableBase<=30000?0.22:0.275);}
+  else{const base=btTc(taxableBase);const extra=type==='realestate_multi'?taxableBase*0.20:0;totalTax=(base+extra)*1.10;}
+
+  document.getElementById('tc-gain').textContent=fmt(gain*10000);
+  document.getElementById('tc-taxbase').textContent=fmt(taxableBase*10000);
+  document.getElementById('tc-tax').textContent=fmt(Math.round(totalTax*10000));
+  document.getElementById('tc-rows').innerHTML=
+    (basicDed>0?`<div class="tax-row"><span class="tl">기본공제</span><span class="tv">-${fmt(basicDed*10000)}</span></div>`:'')+
+    (longDed>0?`<div class="tax-row"><span class="tl">장기보유특별공제</span><span class="tv">-${fmt(Math.round(longDed*10000))}</span></div>`:'')+
+    `<div class="tax-row"><span class="tl">적용 세율 (${note})</span><span class="tv">${(totalTax/taxableBase*100).toFixed(1)}%</span></div>`+
+    `<div class="tax-row total"><span class="tl">최종 납부 세액</span><span class="tv">${fmt(Math.round(totalTax*10000))}</span></div>`;
+}
+['tc-buy','tc-sell'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){
+    setHint(id,this.value*10000,'won');tcUpdate();
+  });
+});
+['tc-type','tc-hold'].forEach(id=>document.getElementById(id).addEventListener('change',tcUpdate));
+
+/* ════ 세금 — 금융소득세 ════ */
+function tfUpdate(){
+  const div=parseFloat(document.getElementById('tf-dividend').value)||0;
+  const int=parseFloat(document.getElementById('tf-interest').value)||0;
+  const other=parseFloat(document.getElementById('tf-other').value)||0;
+  const total=div+int;
+  const threshold=2000;
+  function bt(t){
+    if(t<=1400)return t*0.06;if(t<=5000)return 84+(t-1400)*0.15;
+    if(t<=8800)return 624+(t-5000)*0.24;if(t<=15000)return 1536+(t-8800)*0.35;
+    if(t<=30000)return 3706+(t-15000)*0.38;return 9406+(t-30000)*0.40;
+  }
+  // 기납부 원천징수세
+  const withheld=total*0.154;
+  document.getElementById('tf-total').textContent=fmt(total*10000);
+  document.getElementById('tf-withheld').textContent=fmt(Math.round(withheld*10000));
+
+  if(total<=threshold){
+    document.getElementById('tf-extra').textContent='0원';
+    document.getElementById('tf-extra').className='card-value g';
+    document.getElementById('tf-notice').style.display='block';
+    document.getElementById('tf-notice').innerHTML='✅ 금융소득 2,000만원 이하: 분리과세 15.4%만 적용. <strong>추가 납부 없음</strong>';
+    return;
+  }
+  const over=total-threshold;
+  // 비교과세
+  const m1=(threshold*0.14+bt(other+over))*1.1;
+  const m2=bt(other+total)*1.1;
+  const compTax=Math.max(m1,m2);
+  const extra=Math.max(0,compTax-withheld);
+  const refund=extra===0?Math.max(0,withheld-compTax):0;
+
+  document.getElementById('tf-extra').textContent=extra>0?'+'+fmt(Math.round(extra*10000)):refund>0?'환급 가능':fmt(0);
+  document.getElementById('tf-extra').className='card-value '+(extra>0?'r':refund>0?'g':'');
+  const notice=document.getElementById('tf-notice');
+  notice.style.display='block';
+  if(refund>0){
+    notice.className='ref ok';
+    notice.innerHTML=`✅ 원천징수 기납부세액(${fmt(Math.round(withheld*10000))})이 종합과세 산출세액(${fmt(Math.round(compTax*10000))})보다 많아 <strong>추가 납부 없음</strong>. 환급 가능성이 있어요.<br><span style="font-size:10px;opacity:.7;">* 다른 종합소득에 따라 결과가 달라질 수 있습니다</span>`;
+  } else {
+    notice.className='ref warn';
+    notice.innerHTML=`⚠ 금융소득 ${fmt(over*10000)} 종합과세 적용. 추가 납부 예상액: <strong>${fmt(Math.round(extra*10000))}</strong>`;
+  }
+}
+['tf-dividend','tf-interest','tf-other'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){
+    setHint(id,this.value*10000,'won');tfUpdate();
+  });
+});
+document.getElementById('tf-rate-type').addEventListener('change',tfUpdate);
+
+/* ════ 퇴직금 계산기 ════ */
+function rtUpdate(){
+  const wage=parseFloat(document.getElementById('rt-wage').value)||0;
+  const years=parseFloat(document.getElementById('rt-years').value)||0;
+  const bonus=parseFloat(document.getElementById('rt-bonus').value)||0;
+  const leave=parseFloat(document.getElementById('rt-leave').value)||0;
+  const recvType=document.getElementById('rt-recv').value;
+  const taxYears=Math.max(1,parseFloat(document.getElementById('rt-years-tax').value)||1);
+
+  // 1일 평균임금: 3개월임금 ÷ 91.3일
+  const threeMonthWage=(wage*3+bonus*3/12+leave*3/12)*10000;
+  const daily=threeMonthWage/(365.25/4);
+  const retirePay=daily*30*years;
+
+  document.getElementById('rt-pay').textContent=fmt(Math.round(retirePay));
+  document.getElementById('rt-daily').textContent=fmt(Math.round(daily));
+
+  // 퇴직소득세
+  const payWan=retirePay/10000;
+  function retireTax(pw,yrs){
+    let d1=0;
+    if(yrs<=5)d1=30*yrs;else if(yrs<=10)d1=150+50*(yrs-5);
+    else if(yrs<=20)d1=400+80*(yrs-10);else d1=1200+120*(yrs-20);
+    const hwan=Math.max(0,(pw-d1))*12/yrs;
+    let d2=0;
+    if(hwan<=800)d2=hwan;else if(hwan<=7000)d2=800+(hwan-800)*0.60;
+    else if(hwan<=10000)d2=4720+(hwan-7000)*0.55;
+    else if(hwan<=30000)d2=6370+(hwan-10000)*0.45;
+    else d2=15370+(hwan-30000)*0.35;
+    const taxable=Math.max(0,(hwan-d2))*yrs/12;
+    function btRt(t){
+      if(t<=1400)return t*0.06;if(t<=5000)return 84+(t-1400)*0.15;
+      if(t<=8800)return 624+(t-5000)*0.24;return 1536+(t-8800)*0.35;
+    }
+    const tax=btRt(taxable);return tax*1.10;
+  }
+  let totalTax=retireTax(payWan,taxYears);
+  if(recvType==='annuity')totalTax*=0.70; // 연금수령 30% 감면
+  const netPay=retirePay-totalTax*10000;
+  const eff=payWan>0?(totalTax/payWan*100):0;
+  document.getElementById('rt-tax').textContent=fmt(Math.round(totalTax*10000));
+  document.getElementById('rt-net').textContent=fmt(Math.round(netPay));
+  document.getElementById('rt-eff').textContent=eff.toFixed(1)+'%';
+}
+['rt-wage','rt-years','rt-bonus','rt-leave','rt-years-tax'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('input',function(){
+    if(id==='rt-wage')setHint('rt-wage',this.value*10000,'won');
+    if(id==='rt-years')setHint('rt-years',this.value,'year');
+    rtUpdate();
+  });
+});
+document.getElementById('rt-recv').addEventListener('change',rtUpdate);
+
+/* ════ 국민연금 ════ */
+const PN={data:null};
+const A_NP=2989237/10000; // 만원 단위
+function pnUpdate(){
+  const age=parseInt(document.getElementById('pn-age').value)||35;
+  const income=parseFloat(document.getElementById('pn-income').value)||0;
+  const B=Math.max(37,Math.min(590,income));
+  const joinYears=parseInt(document.getElementById('pn-years').value)||1;
+  const recvAge=parseInt(document.getElementById('pn-recv-age').value)||65;
+  const P=joinYears*12;
+
+  // 기본연금액 공식
+  let pension=1.2*(A_NP+0.75*B)*(P/480);
+  // 수령 연령 조정
+  if(recvAge===62)pension*=0.82;
+  else if(recvAge===63)pension*=0.91;
+  else if(recvAge===65)pension*=1.0;
+  else if(recvAge===66)pension*=1.072;
+  else if(recvAge===70)pension*=1.36;
+
+  const premMonthly=B*0.045;
+  const premTotal=premMonthly*P;
+  const bepMonths=premTotal/pension;
+
+  document.getElementById('pn-monthly').textContent=fmt(Math.round(pension*10000));
+  document.getElementById('pn-total-prem').textContent=fmt(Math.round(premTotal*10000));
+  document.getElementById('pn-bep').textContent=(bepMonths/12).toFixed(1)+'년';
+  document.getElementById('pn-recv-age-label').textContent=recvAge+'세 기준';
+
+  // 차트: 나이별 누적 수령액 vs 납입액
+  const startRecvAge=recvAge;
+  const maxAge=Math.min(100,startRecvAge+35);
+  const labels=[],cumRecv=[],premLine=[];
+  const premTotalWon=premTotal*10000;
+  for(let a=startRecvAge;a<=maxAge;a++){
+    const yrs=a-startRecvAge;
+    labels.push(a+'세');
+    cumRecv.push(Math.round(pension*10000*yrs*12));
+    premLine.push(premTotalWon);
+  }
+  PN.data={labels,
+    series:[
+      {type:'bar',values:cumRecv,color:'rgba(124,92,191,.7)'},
+      {type:'line',values:premLine,color:'#E24B4A',dash:[4,3]},
+    ],
+    tooltipLines:(i)=>[
+      {text:labels[i],bold:true},
+      {text:'누적 수령액: '+fmt(cumRecv[i]),bold:false,color:'#7C5CBF'},
+      {text:'납입 보험료: '+fmt(premTotalWon),bold:false,color:'#E24B4A'},
+    ]};
+  pnRenderChart(-1);
+}
+function pnRenderChart(tip){if(!PN.data)return;renderChart('pnChart',PN.data,tip);}
+makeTip('pnChart',()=>PN.data,pnRenderChart);
+['pn-age','pn-income','pn-years'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('input',function(){
+    if(id==='pn-income')setHint('pn-income',this.value*10000,'won');
+    pnUpdate();
+  });
+});
+document.getElementById('pn-recv-age').addEventListener('change',pnUpdate);
+
+/* ════ 개인연금 ════ */
+const PP={data:null};
+function ppUpdate(){
+  const curAge=parseInt(document.getElementById('pp-age').value)||35;
+  const recvAge=parseInt(document.getElementById('pp-recv-age').value)||65;
+  const monthly=parseFloat(document.getElementById('pp-monthly').value)||0; // 만원
+  const rate=parseFloat(document.getElementById('pp-rate').value)||0;
+  const recvYears=parseInt(document.getElementById('pp-recv-years').value)||20;
+  const creditType=document.getElementById('pp-credit-type').value;
+
+  const saveYears=Math.max(1,recvAge-curAge);
+  const r_m=rate/100/12;
+  const n_s=saveYears*12;
+  const n_r=recvYears*12;
+
+  // 적립 자산 (만원 단위)
+  const asset=r_m>0?monthly*((Math.pow(1+r_m,n_s)-1)/r_m)*(1+r_m):monthly*n_s;
+  // 월 수령액
+  const recv=r_m>0?asset*r_m/(1-Math.pow(1+r_m,-n_r)):asset/n_r;
+  const principal=monthly*n_s;
+
+  // 세액공제
+  const annualPay=monthly*12;
+  const limit=creditType==='irp'?900:600;
+  const creditRate=0.165;
+  const annualCredit=Math.min(annualPay,limit)*creditRate;
+  const totalCredit=annualCredit*saveYears;
+
+  document.getElementById('pp-principal').textContent=fmt(principal*10000);
+  document.getElementById('pp-asset').textContent=fmt(Math.round(asset*10000));
+  document.getElementById('pp-monthly-recv').textContent=fmt(Math.round(recv*10000));
+  document.getElementById('pp-annual-credit').textContent=fmt(Math.round(annualCredit*10000));
+  document.getElementById('pp-total-credit-sub').textContent=saveYears+'년간 총 '+fmt(Math.round(totalCredit*10000));
+  document.getElementById('pp-save-years').textContent=saveYears+'년 적립';
+
+  // 차트: 연도별 누적 자산
+  const labels=[],assetVals=[],prinVals=[];
+  for(let y=0;y<=Math.min(saveYears,40);y++){
+    const n=y*12;
+    const fv=r_m>0?monthly*((Math.pow(1+r_m,n)-1)/r_m)*(1+r_m):monthly*n;
+    labels.push(y+'년');
+    assetVals.push(Math.round(fv*10000));
+    prinVals.push(Math.round(monthly*n*10000));
+  }
+  PP.data={labels,
+    series:[
+      {type:'bar',values:prinVals,color:'#B5D4F4'},
+      {type:'bar',values:assetVals.map((v,i)=>Math.max(0,v-prinVals[i])),color:'rgba(124,92,191,.7)'},
+    ],
+    tooltipLines:(i)=>[
+      {text:labels[i],bold:true},
+      {text:'총 자산:  '+fmt(assetVals[i]),bold:false,color:'#7C5CBF'},
+      {text:'납입 원금: '+fmt(prinVals[i]),bold:false},
+    ]};
+  ppRenderChart(-1);
+}
+function ppRenderChart(tip){if(!PP.data)return;renderChart('ppChart',PP.data,tip);}
+makeTip('ppChart',()=>PP.data,ppRenderChart);
+['pp-age','pp-recv-age','pp-monthly','pp-rate','pp-recv-years'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('input',function(){
+    if(id==='pp-monthly')setHint('pp-monthly',this.value*10000,'won');
+    ppUpdate();
+  });
+});
+document.getElementById('pp-credit-type').addEventListener('change',ppUpdate);
+
+/* ════ 플로팅 계산기 ════ */
+(function(){
+  let open=false,cur='0',expr='',op=null,prev=null,waitNext=true;
+  function disp(){
+    let s=cur;
+    if(s.replace(/[^0-9]/g,'').length>10)s=parseFloat(cur).toPrecision(8).replace(/\.?0+$/,'');
+    document.getElementById('cNum').textContent=s;
+    document.getElementById('cExpr').textContent=expr||'\u00a0';
+  }
+  function calc(a,b,o){
+    if(o==='/')return b===0?0:Math.round(a/b*1e10)/1e10;
+    if(o==='*')return Math.round(a*b*1e10)/1e10;
+    if(o==='+')return Math.round((a+b)*1e10)/1e10;
+    if(o==='-')return Math.round((a-b)*1e10)/1e10;
+    return b;
+  }
+  window.calcToggle=function(){open=!open;document.getElementById('calcPanel').classList.toggle('open',open);};
+  window.ck=function(k){
+    if(k==='AC'){cur='0';expr='';op=null;prev=null;waitNext=true;}
+    else if(k==='+/-'){if(cur!=='0')cur=String(-parseFloat(cur));}
+    else if(k==='%'){cur=String(parseFloat(cur)/100);}
+    else if(['/','*','+','-'].includes(k)){
+      if(op&&!waitNext){prev=calc(parseFloat(prev),parseFloat(cur),op);cur=String(prev);}
+      else prev=parseFloat(cur);
+      op=k;waitNext=true;
+      const sym={'/':'÷','*':'×','+':'+','-':'−'}[k];
+      expr=cur+' '+sym;
+    }
+    else if(k==='='){
+      if(op&&prev!==null){
+        const res=calc(parseFloat(prev),parseFloat(cur),op);
+        expr=expr+(waitNext?'':cur)+' =';cur=String(res);op=null;prev=null;waitNext=true;
+      }
+    }
+    else if(k==='.'){if(waitNext){cur='0.';waitNext=false;}else if(!cur.includes('.'))cur+='.'; }
+    else{if(waitNext){cur=k;waitNext=false;}else cur=(cur==='0'?k:cur+k);}
+    disp();
+  };
+  document.addEventListener('click',e=>{
+    if(!open)return;
+    const p=document.getElementById('calcPanel'),f=document.getElementById('calcFab');
+    if(!p.contains(e.target)&&!f.contains(e.target)){open=false;p.classList.remove('open');}
+  });
+  document.addEventListener('keydown',e=>{
+    if(!open||e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+    const map={'0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','+':'+','-':'-','*':'*','/':'/','Enter':'=','=':'=','Escape':'AC','.':'.',',':'.'};
+    if(map[e.key]){e.preventDefault();ck(map[e.key]);}
+  });
+})();
+
+/* ════ 힌트 초기화 ════ */
+function initHints(){
+  const map={
+    'c-principal':'won','c-monthly':'won',
+    'd-amount':'won','d-shares':'shares','d-pershare':'won','d-years':'year',
+    'l-amount':'eok','l-rate':'pct','l-years':'year',
+    'te-salary':'wan',
+    'tc-buy':'wan','tc-sell':'wan',
+    'tf-dividend':'wan','tf-interest':'wan',
+    'rt-wage':'wan','rt-years':'year',
+    'pn-income':'wan','pp-monthly':'wan',
+  };
+  Object.entries(map).forEach(([id,type])=>{
+    const el=document.getElementById(id);if(!el)return;
+    setHint(id,el.value,type);
+    el.addEventListener('input',()=>setHint(id,el.value,type));
+  });
+}
+
+/* ════ 리사이즈 ════ */
+window.addEventListener('resize',()=>reRenderActive());
+
+/* ════ 초기화 ════ */
+window.addEventListener('load',()=>{
+  initHints();
+  // 대출
+  lSyncRate(4.5);lSyncYears(30);lUpdate();
+  // 복리
+  cSetRate(10);cSetYears(20);cUpdate();
+  // 배당
+  dSyncYears(20);dUpdate();
+  // 세금
+  teUpdate();tcUpdate();tfUpdate();
+  // 퇴직금
+  rtUpdate();
+  // 연금
+  pnUpdate();ppUpdate();
+  // 헤더 배지 초기 상태
+  document.getElementById('headerBadge').style.display='';
 });
 </script>
 </body>

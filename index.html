@@ -371,8 +371,8 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--red);cursor:point
       <button class="nav-item" data-panel="retire" data-label="퇴직금 계산기" data-badge="">
         <span class="nav-icon">🧾</span><span>퇴직금 계산기</span>
       </button>
-      <button class="nav-item" data-panel="pension" data-label="연금 계산기" data-badge="">
-        <span class="nav-icon">🏖️</span><span>연금 계산기</span>
+      <button class="nav-item" data-panel="salary" data-label="연봉 실수령액" data-badge="">
+        <span class="nav-icon">💵</span><span>연봉 실수령액</span>
       </button>
     </div>
   </nav>
@@ -609,29 +609,10 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--red);cursor:point
         <div class="panel-desc">근로소득세 · 양도소득세 · 금융소득세를 계산해요</div>
       </div>
       <div class="sub-tabs">
-        <button class="stab act-amber" data-tax="earned">근로소득세</button>
-        <button class="stab" data-tax="capital">양도소득세</button>
+        <button class="stab act-amber" data-tax="capital">양도소득세</button>
         <button class="stab" data-tax="finance">금융소득세</button>
       </div>
       <div class="panel-scroll">
-        <!-- 근로소득세 -->
-        <div id="tax-earned">
-          <div class="ref warn" style="margin-bottom:10px;">📋 <strong>간이세액표 기준</strong> 산출값입니다. 연말정산 결과와 다를 수 있으며, 최종 세액은 연말정산 시 확정됩니다.</div>
-          <div class="ig">
-            <div><label>연봉 (만원)</label><div class="input-wrap"><input type="number" id="te-salary" value="5000" step="100"/><span class="input-hint" id="hint-te-salary">5,000만원</span></div></div>
-            <div><label>부양가족 수 (본인 포함)</label><input type="number" id="te-family" value="1" min="1" max="20"/></div>
-          </div>
-          <div class="ig">
-            <div><label>20세 이하 자녀 수</label><input type="number" id="te-child" value="0" min="0"/></div>
-            <div><label>비과세 소득 (만원/월)</label><input type="number" id="te-nontax" value="20" step="1"/></div>
-          </div>
-          <div class="cards c3">
-            <div class="card"><div class="card-label">예상 실수령액 (월)</div><div class="card-value g" id="te-net">-</div><div class="card-sub" id="te-net-annual">-</div></div>
-            <div class="card"><div class="card-label">월 총 공제액</div><div class="card-value r" id="te-total-ded">-</div><div class="card-sub" id="te-total-ded-annual">-</div></div>
-            <div class="card"><div class="card-label">실효세율</div><div class="card-value am" id="te-eff">-</div></div>
-          </div>
-          <div class="tax-rows" id="te-rows"></div>
-        </div>
         <!-- 양도소득세 -->
         <div id="tax-capital" style="display:none;">
           <div class="ig">
@@ -743,140 +724,60 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--red);cursor:point
       </div>
     </div>
 
-    <!-- ══ 연금 계산기 ══ -->
-    <div id="panel-pension" class="panel">
+
+
+    <!-- ══ 연봉 실수령액 계산기 ══ -->
+    <div id="panel-salary" class="panel">
       <div class="panel-head">
-        <div class="panel-title">연금 계산기</div>
-        <div class="panel-desc">국민연금 예상 수령액과 개인연금 적립을 시뮬레이션해요</div>
-      </div>
-      <div class="sub-tabs">
-        <button class="stab act-purple" data-pension="national">국민연금</button>
-        <button class="stab" data-pension="private">개인연금 (IRP · 연금저축)</button>
+        <div class="panel-title">연봉 실수령액 계산기</div>
+        <div class="panel-desc">4대보험 및 근로소득세(간이세액표 기준)를 공제한 월 실수령액을 계산해요</div>
       </div>
       <div class="panel-scroll">
-        <!-- 국민연금 -->
-        <div id="pension-national">
-          <!-- 입력 1행: 출생연도 + 가입기간 -->
-          <div class="ig">
-            <div><label>출생연도</label><div class="input-wrap"><input type="number" id="pn-birth" value="1985" step="1" min="1953" max="2006"/><span class="input-hint" id="hint-pn-birth">1985년생 (만 40세)</span></div></div>
-            <div><label>가입기간 (년)</label><div class="input-wrap"><input type="number" id="pn-years" value="25" step="1" min="1" max="42"/><span class="input-hint" id="hint-pn-years">25년</span></div></div>
-          </div>
-          <!-- 입력 2행: 소득 + 수령연령 -->
-          <div class="ig">
-            <div><label>최근 기준소득월액 (만원)</label><div class="input-wrap"><input type="number" id="pn-income" value="350" step="10" min="37" max="590"/><span class="input-hint" id="hint-pn-income">350만원</span></div></div>
-            <div><label>수령 개시 연령</label>
-              <select id="pn-recv-age">
-                <option value="60">60세 (조기 -30%)</option>
-                <option value="61">61세 (조기 -24%)</option>
-                <option value="62">62세 (조기 -18%)</option>
-                <option value="63">63세 (조기 -12%)</option>
-                <option value="64">64세 (조기 -6%)</option>
-                <option value="65" selected>65세 (정상수령)</option>
-                <option value="66">66세 (연기 +7.2%)</option>
-                <option value="67">67세 (연기 +14.4%)</option>
-                <option value="68">68세 (연기 +21.6%)</option>
-                <option value="69">69세 (연기 +28.8%)</option>
-                <option value="70">70세 (연기 +36%)</option>
-              </select>
+        <div class="ig">
+          <div>
+            <label>연봉 (만원)</label>
+            <div class="input-wrap">
+              <input type="number" id="sw-salary" value="5000" step="100" min="1000"/>
+              <span class="input-hint" id="hint-sw-salary">5,000만원</span>
             </div>
           </div>
-          <!-- 입력 3행: 임금상승률 + 물가상승률 -->
-          <div class="ig">
-            <div><label>임금상승률 가정 (%/년)</label>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="number" id="pn-wage-growth" value="3.0" step="0.5" min="0" max="10" style="flex:1;"/>
-                <span style="font-size:11px;color:var(--text-2);white-space:nowrap;">A값 추정에 적용</span>
-              </div>
-            </div>
-            <div><label>물가상승률 가정 (%/년)</label>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="number" id="pn-price-growth" value="2.5" step="0.5" min="0" max="10" style="flex:1;"/>
-                <span style="font-size:11px;color:var(--text-2);white-space:nowrap;">실질가치 환산</span>
-              </div>
-            </div>
-          </div>
-          <!-- 정상수령연령 안내 배지 -->
-          <div id="pn-normal-age-badge" class="ref warn" style="margin-bottom:10px;padding:7px 12px;">
-            ℹ️ <span id="pn-normal-age-text">1985년생 정상수령 연령: 65세</span>
-          </div>
-          <!-- 결과 카드 -->
-          <div class="cards c3">
-            <div class="card">
-              <div class="card-label">예상 월 수령액 (명목)</div>
-              <div class="card-value pu" id="pn-monthly">-</div>
-              <div class="card-sub" id="pn-recv-year-label">수령 시작 연도</div>
-            </div>
-            <div class="card">
-              <div class="card-label">현재 가치 환산</div>
-              <div class="card-value" id="pn-real">-</div>
-              <div class="card-sub">현재 화폐 기준</div>
-            </div>
-            <div class="card">
-              <div class="card-label">총 납입 보험료</div>
-              <div class="card-value" id="pn-total-prem">-</div>
-              <div class="card-sub">본인 부담 4.5%</div>
-            </div>
-          </div>
-          <div class="cards c2">
-            <div class="card">
-              <div class="card-label">손익분기 (실질 기준)</div>
-              <div class="card-value g" id="pn-bep">-</div>
-              <div class="card-sub">수령 시작 후 원금 회수까지</div>
-            </div>
-            <div class="card">
-              <div class="card-label">20년 누적 수령 (명목)</div>
-              <div class="card-value bl" id="pn-cum20">-</div>
-              <div class="card-sub">물가상승률 반영</div>
-            </div>
-          </div>
-          <div class="chart-wrap h180"><canvas id="pnChart"></canvas></div>
-          <div class="legend">
-            <span><span class="ldot" style="background:#7C5CBF"></span>누적 수령액 (명목)</span>
-            <span><span class="ldot" style="background:#E24B4A;opacity:.6"></span>납입 보험료</span>
-          </div>
-          <div class="ref info">
-            📌 <strong>수식:</strong> 기본연금액 = 1.2 × (A + 0.75×B) × 가입월수/480 (국민연금공단 공식)<br>
-            <strong>A값</strong>: 전체 가입자 평균소득 (임금상승률로 미래 추정) · <strong>B값</strong>: 본인 기준소득월액 (상한 590만/하한 37만원)<br>
-            ⚠ <strong>명목 수령액</strong>은 미래 화폐 기준 · <strong>현재 가치</strong>는 오늘 돈으로 환산한 금액<br>
-            📌 수령액은 매년 전년도 소비자물가 상승률에 연동하여 인상됩니다<br>
-            <span style="font-size:10px;opacity:.7;">정확한 수령액은 국민연금공단 내연금산정 서비스에서 확인하세요 · 2024년 세법 및 공단 수식 기준</span>
+          <div>
+            <label>부양가족 수 (본인 포함)</label>
+            <input type="number" id="sw-family" value="1" min="1" max="20"/>
           </div>
         </div>
-        <!-- 개인연금 -->
-        <div id="pension-private" style="display:none;">
-          <div class="ig">
-            <div><label>현재 나이</label><input type="number" id="pp-age" value="35" min="18" max="60"/></div>
-            <div><label>연금 수령 나이</label><input type="number" id="pp-recv-age" value="65" min="55" max="80"/></div>
+        <div class="ig">
+          <div>
+            <label>20세 이하 자녀 수</label>
+            <input type="number" id="sw-child" value="0" min="0" max="10"/>
           </div>
-          <div class="ig">
-            <div><label>월 납입액 (만원)</label><div class="input-wrap"><input type="number" id="pp-monthly" value="50" step="5" min="1"/><span class="input-hint" id="hint-pp-monthly">50만원</span></div></div>
-            <div><label>예상 수익률 (%)</label><input type="number" id="pp-rate" value="5" step="0.1" min="0.1" max="20"/></div>
+          <div>
+            <label>비과세 소득 (만원/월)</label>
+            <input type="number" id="sw-nontax" value="20" step="1" min="0"/>
           </div>
-          <div class="ig">
-            <div><label>수령 기간 (년)</label><input type="number" id="pp-recv-years" value="20" step="1" min="1" max="40"/></div>
-            <div><label>세액공제 한도</label>
-              <select id="pp-credit-type">
-                <option value="irp" selected>IRP + 연금저축 (연 900만원)</option>
-                <option value="saving">연금저축만 (연 600만원)</option>
-              </select>
-            </div>
+        </div>
+        <div class="cards c3">
+          <div class="card">
+            <div class="card-label">월 실수령액</div>
+            <div class="card-value g" id="sw-monthly-net">-</div>
+            <div class="card-sub" id="sw-annual-net">연 -</div>
           </div>
-          <div class="cards c3">
-            <div class="card"><div class="card-label">적립 원금</div><div class="card-value" id="pp-principal">-</div></div>
-            <div class="card"><div class="card-label">수령 시 자산</div><div class="card-value pu" id="pp-asset">-</div></div>
-            <div class="card"><div class="card-label">예상 월 수령액</div><div class="card-value g" id="pp-monthly-recv">-</div></div>
+          <div class="card">
+            <div class="card-label">월 총 공제액</div>
+            <div class="card-value r" id="sw-monthly-ded">-</div>
+            <div class="card-sub" id="sw-annual-ded">연 -</div>
           </div>
-          <div class="cards c2">
-            <div class="card"><div class="card-label">연간 세액공제 혜택</div><div class="card-value bl" id="pp-annual-credit">-</div><div class="card-sub" id="pp-total-credit-sub">-</div></div>
-            <div class="card"><div class="card-label">세액공제 반영 기간</div><div class="card-value" id="pp-save-years">-</div><div class="card-sub">적립 기간</div></div>
+          <div class="card">
+            <div class="card-label">실효세율</div>
+            <div class="card-value am" id="sw-eff-rate">-</div>
+            <div class="card-sub">소득세 + 지방세 기준</div>
           </div>
-          <div class="chart-wrap h180"><canvas id="ppChart"></canvas></div>
-          <div class="ref info">
-            ✅ <strong>세액공제율 16.5%</strong> (총급여 5,500만원 이하) · 초과 시 <strong>13.2%</strong><br>
-            📌 연금 수령 시 연금소득세 부과 (1,500만원 이하 3.3~5.5% · 초과 시 종합과세)<br>
-            ⚠ 55세 이전 중도해지 시 기타소득세 16.5% 부과 (세액공제 혜택 전액 반환)<br>
-            <span style="font-size:10px;opacity:.7;">IRP는 퇴직급여와 개인 납입금을 모두 운용 가능 · 연금저축과 합산하여 한도 적용</span>
-          </div>
+        </div>
+        <div class="tax-rows" id="sw-rows"></div>
+        <div class="ref warn" style="margin-top:10px;">
+          📋 <strong>간이세액표 기준</strong> 월 원천징수 예상액입니다. 연말정산 결과에 따라 실제 세액이 달라질 수 있어요.<br>
+          비과세 소득 기본값 20만원은 식대(월 20만원 한도) 기준이며, 회사 규정에 따라 다를 수 있습니다.<br>
+          <span style="font-size:10px;opacity:.7;">2024년 기준 · 국민연금 상한 590만원 / 건강보험 3.545% / 장기요양 건보료×12.81% / 고용보험 0.9%</span>
         </div>
       </div>
     </div>
@@ -1116,11 +1017,6 @@ function reRenderActive(){
   if(id==='panel-loan')lRenderChart(-1);
   else if(id==='panel-compound')cRenderChart(-1);
   else if(id==='panel-dividend')dRenderChart(-1);
-  else if(id==='panel-pension'){
-    const nat=document.getElementById('pension-national');
-    if(nat.style.display!=='none')pnRenderChart(-1);
-    else ppRenderChart(-1);
-  }
 }
 
 /* ════ 세금 서브탭 ════ */
@@ -1128,24 +1024,12 @@ document.querySelectorAll('.stab[data-tax]').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.stab[data-tax]').forEach(b=>b.classList.remove('act-amber'));
     btn.classList.add('act-amber');
-    ['earned','capital','finance'].forEach(k=>{
+    ['capital','finance'].forEach(k=>{
       document.getElementById('tax-'+k).style.display=k===btn.dataset.tax?'block':'none';
     });
   });
 });
-/* 연금 서브탭 */
-document.querySelectorAll('.stab[data-pension]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.stab[data-pension]').forEach(b=>b.classList.remove('act-purple'));
-    btn.classList.add('act-purple');
-    document.getElementById('pension-national').style.display=btn.dataset.pension==='national'?'block':'none';
-    document.getElementById('pension-private').style.display=btn.dataset.pension==='private'?'block':'none';
-    setTimeout(()=>{
-      if(btn.dataset.pension==='national')pnRenderChart(-1);
-      else ppRenderChart(-1);
-    },30);
-  });
-});
+
 
 /* ════ 다크모드 ════ */
 function toggleTheme(){
@@ -1468,77 +1352,6 @@ function dUpdate(){
   dRenderChart(-1);
 }
 
-/* ════ 세금 — 근로소득세 ════ */
-function teUpdate(){
-  const sal=parseFloat(document.getElementById('te-salary').value)||0;
-  const family=Math.max(1,parseInt(document.getElementById('te-family').value)||1);
-  const child=Math.max(0,parseInt(document.getElementById('te-child').value)||0);
-  const nonTax=parseFloat(document.getElementById('te-nontax').value)||0;
-
-  const monthly=sal*10000/12;
-  // 4대보험
-  const NP_CAP=5900000,NP_FLOOR=370000;
-  const npBase=Math.max(NP_FLOOR,Math.min(NP_CAP,monthly));
-  const np=npBase*0.045,hi=monthly*0.03545,lc=hi*0.1281,ei=monthly*0.009;
-
-  // 간이세액표 근사 (월 과세급여 기준)
-  const base=monthly/10000-nonTax;
-  let tax=0;
-  if(base<=106)tax=0;
-  else if(base<=188)tax=2.376+(base-150)*0.06+(base<=150?-(150-base)*0.06+((base-106)*0.06*0.55-(base-106)*0.06):0);
-  else if(base<=188)tax=2.376+(base-150)*0.06;
-  else if(base<=250)tax=6.936+(base-188)*0.08;
-  else if(base<=300)tax=11.896+(base-250)*0.10;
-  else if(base<=400)tax=16.896+(base-300)*0.15;
-  else if(base<=500)tax=31.896+(base-400)*0.20;
-  else tax=51.896+(base-500)*0.25;
-
-  // 더 정확한 간이세액표 구간
-  tax=0;
-  if(base<=106)tax=0;
-  else if(base<=150)tax=Math.max(0,(base-106)*0.06*0.55-(family-1)*0.5);
-  else if(base<=188)tax=Math.max(0,2.376+(base-150)*0.06-(family-1)*1.0);
-  else if(base<=250)tax=Math.max(0,4.656+(base-188)*0.08-(family-1)*1.5);
-  else if(base<=300)tax=Math.max(0,9.616+(base-250)*0.10-(family-1)*2.0);
-  else if(base<=400)tax=Math.max(0,14.616+(base-300)*0.15-(family-1)*2.5);
-  else if(base<=500)tax=Math.max(0,29.616+(base-400)*0.20-(family-1)*3.0);
-  else tax=Math.max(0,49.616+(base-500)*0.25-(family-1)*3.0);
-
-  // 자녀세액공제 (월 기준)
-  const childCredit=(child===1?1.25:child===2?2.92:child>=3?2.92+(child-2)*2.5:0);
-  tax=Math.max(0,tax-childCredit);
-  const local=tax*0.10;
-
-  const totalDed=np+hi+lc+ei+tax*10000+local*10000;
-  const net=monthly-totalDed;
-  const effRate=(tax+local)/(sal/12)*100;
-
-  document.getElementById('te-net').textContent=fmt(Math.round(net));
-  document.getElementById('te-net-annual').textContent='연 '+fmt(Math.round(net)*12);
-  document.getElementById('te-total-ded').textContent=fmt(Math.round(totalDed));
-  document.getElementById('te-total-ded-annual').textContent='연 '+fmt(Math.round(totalDed)*12);
-  document.getElementById('te-eff').textContent=(tax+local>0?effRate.toFixed(1):'0.0')+'%';
-
-  const rows=[
-    ['국민연금 (4.5%)',np,''],
-    ['건강보험 (3.545%)',hi,''],
-    ['장기요양보험 (건보료×12.81%)',lc,''],
-    ['고용보험 (0.9%)',ei,''],
-    ['근로소득세 (간이세액표)',tax*10000,''],
-    ['지방소득세 (10%)',local*10000,''],
-  ];
-  document.getElementById('te-rows').innerHTML=
-    rows.map(([l,v])=>`<div class="tax-row"><span class="tl">${l}</span><span class="tv">${fmt(Math.round(v))}</span></div>`).join('')+
-    `<div class="tax-row total"><span class="tl">월 총 공제</span><span class="tv">${fmt(Math.round(totalDed))}</span></div>`;
-}
-['te-salary','te-family','te-child','te-nontax'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el){
-    el.addEventListener('input',teUpdate);
-    if(id==='te-salary')el.addEventListener('input',()=>setHint('te-salary',document.getElementById('te-salary').value*10000,'won'));
-  }
-});
-
 /* ════ 세금 — 양도소득세 ════ */
 function tcUpdate(){
   const buy=parseFloat(document.getElementById('tc-buy').value)||0;
@@ -1708,195 +1521,111 @@ function rtUpdate(){
 });
 document.getElementById('rt-recv').addEventListener('change',rtUpdate);
 
-/* ════ 국민연금 (개선) ════ */
-const PN={data:null};
-const A_NP_2024=298.9237; // 2024년 A값 (만원)
 
-function pnGetNormalAge(birthYear){
-  if(birthYear<=1952)return 60;
-  if(birthYear<=1956)return 61;
-  if(birthYear<=1960)return 61;
-  if(birthYear<=1964)return 62;
-  if(birthYear<=1968)return 63;
-  if(birthYear<=1972)return 64;
-  return 65;
-}
 
-function pnUpdate(){
-  const birthYear=parseInt(document.getElementById('pn-birth').value)||1985;
-  const joinYears=parseInt(document.getElementById('pn-years').value)||1;
-  const income=parseFloat(document.getElementById('pn-income').value)||0;
-  const recvAge=parseInt(document.getElementById('pn-recv-age').value)||65;
-  const wg=(parseFloat(document.getElementById('pn-wage-growth').value)||0)/100;
-  const pg=(parseFloat(document.getElementById('pn-price-growth').value)||0)/100;
+/* ════ 연봉 실수령액 계산기 ════ */
 
-  // 정상수령연령 계산 및 표시
-  const normalAge=pnGetNormalAge(birthYear);
-  const currentAge=2024-birthYear;
-  document.getElementById('pn-normal-age-text').textContent=
-    `${birthYear}년생 (현재 약 ${currentAge}세) · 정상수령 연령: ${normalAge}세`;
+// 2024 국세청 간이세액표 (총월급여→부양가족1인 세액, 원 단위) — 선형보간 기준점
+const SW_TAX_PTS = [
+  [1_060_000,       0], [1_500_000,   1_580], [1_800_000,   9_070],
+  [2_000_000,  17_500], [2_200_000,  26_060], [2_500_000,  46_560],
+  [2_800_000,  74_450], [3_000_000,  96_800], [3_200_000, 121_100],
+  [3_500_000, 148_690], [3_800_000, 177_790], [4_000_000, 212_800],
+  [4_200_000, 242_800], [4_500_000, 294_360], [5_000_000, 376_960],
+  [5_500_000, 459_560], [6_000_000, 557_960], [6_500_000, 653_290],
+  [7_000_000, 749_630], [8_000_000, 973_630], [9_000_000,1_199_630],
+  [10_000_000,1_477_630],
+];
 
-  // 수령 시작 연도 및 남은 연수
-  const recvYear=birthYear+recvAge;
-  const yrsToRecv=Math.max(0,recvYear-2024);
-
-  // A값 미래 추정 (임금상승률 반영)
-  const A_future=A_NP_2024*Math.pow(1+wg,yrsToRecv);
-
-  // B값 (기준소득월액 상·하한 적용)
-  const B=Math.max(37,Math.min(590,income));
-
-  // 가입월수
-  const P=joinYears*12;
-
-  // 기본연금액 (명목, 수령 시점 화폐)
-  const basePension=1.2*(A_future+0.75*B)*(P/480);
-
-  // 수령연령 조정 (조기/연기)
-  const ageDiff=recvAge-normalAge;
-  let adj;
-  if(ageDiff<0)      adj=Math.max(0.70, 1+ageDiff*0.06);
-  else if(ageDiff>0) adj=Math.min(1.36, 1+ageDiff*0.072);
-  else               adj=1.0;
-  const pensionNominal=basePension*adj; // 만원 (명목)
-
-  // 실질가치 (현재 화폐 기준)
-  const pensionReal=yrsToRecv>0
-    ? pensionNominal/Math.pow(1+pg,yrsToRecv)
-    : pensionNominal;
-
-  // 납입 보험료 (만원)
-  const premium=B*0.045*P;
-
-  // 손익분기 (실질 기준)
-  let bepM=0,cumul=0;
-  while(cumul<premium&&bepM<600){bepM++;cumul+=pensionReal;}
-  const bepYrs=bepM/12;
-
-  // 20년 누적 수령 (명목, 물가상승 반영)
-  let cum20=0;
-  for(let y=0;y<20;y++) cum20+=pensionNominal*12*Math.pow(1+pg,y);
-
-  // 결과 표시
-  document.getElementById('pn-monthly').textContent=fmt(Math.round(pensionNominal*10000));
-  document.getElementById('pn-real').textContent=fmt(Math.round(pensionReal*10000));
-  document.getElementById('pn-total-prem').textContent=fmt(Math.round(premium*10000));
-  document.getElementById('pn-bep').textContent=bepYrs.toFixed(1)+'년';
-  document.getElementById('pn-cum20').textContent=fmt(Math.round(cum20*10000));
-  document.getElementById('pn-recv-year-label').textContent=
-    `${recvYear}년 수령 시작 (${yrsToRecv}년 후)`;
-
-  // 차트: 나이별 누적 수령액 vs 납입액 (물가상승 반영)
-  const labels=[],cumRecvArr=[],premLine=[];
-  const maxAge=Math.min(100,recvAge+35);
-  const premTotalWon=Math.round(premium*10000);
-  for(let a=recvAge;a<=maxAge;a++){
-    const yrs=a-recvAge;
-    let cumR=0;
-    for(let y=0;y<yrs;y++) cumR+=pensionNominal*12*Math.pow(1+pg,y)*10000;
-    labels.push(a+'세');
-    cumRecvArr.push(Math.round(cumR));
-    premLine.push(premTotalWon);
-  }
-  PN.data={labels,
-    series:[
-      {type:'bar',values:cumRecvArr,color:'rgba(124,92,191,.7)'},
-      {type:'line',values:premLine,color:'#E24B4A',dash:[4,3]},
-    ],
-    tooltipLines:(i)=>[
-      {text:labels[i],bold:true},
-      {text:'누적 수령액: '+fmt(cumRecvArr[i]),bold:false,color:'#7C5CBF'},
-      {text:'납입 보험료: '+fmt(premTotalWon),bold:false,color:'#E24B4A'},
-      {text:'손익: '+(cumRecvArr[i]>premTotalWon?'+':'')+fmt(cumRecvArr[i]-premTotalWon),bold:false},
-    ]};
-  pnRenderChart(-1);
-}
-
-function pnRenderChart(tip){if(!PN.data)return;renderChart('pnChart',PN.data,tip);}
-makeTip('pnChart',()=>PN.data,pnRenderChart);
-
-// 이벤트 등록
-['pn-birth','pn-years','pn-income','pn-wage-growth','pn-price-growth'].forEach(id=>{
-  const el=document.getElementById(id);if(!el)return;
-  el.addEventListener('input',function(){
-    if(id==='pn-income')setHint('pn-income',this.value*10000,'won');
-    if(id==='pn-birth'){
-      const age=2024-parseInt(this.value||1985);
-      document.getElementById('hint-pn-birth').textContent=
-        (parseInt(this.value)||1985)+'년생 (만 '+age+'세)';
+function swWithholding(monthlyWon, family, child) {
+  // 1인 기준 세액 (선형보간)
+  let base = 0;
+  if (monthlyWon <= SW_TAX_PTS[0][0]) {
+    base = 0;
+  } else if (monthlyWon >= SW_TAX_PTS[SW_TAX_PTS.length-1][0]) {
+    const [x1,y1] = SW_TAX_PTS[SW_TAX_PTS.length-2];
+    const [x2,y2] = SW_TAX_PTS[SW_TAX_PTS.length-1];
+    base = y2 + (y2-y1)/(x2-x1) * (monthlyWon-x2);
+  } else {
+    for (let i=0; i<SW_TAX_PTS.length-1; i++) {
+      const [x1,y1]=SW_TAX_PTS[i], [x2,y2]=SW_TAX_PTS[i+1];
+      if (monthlyWon >= x1 && monthlyWon < x2) {
+        base = y1 + (y2-y1)/(x2-x1)*(monthlyWon-x1);
+        break;
+      }
     }
-    if(id==='pn-years')setHint('pn-years',this.value,'year');
-    pnUpdate();
-  });
-});
-document.getElementById('pn-recv-age').addEventListener('change',pnUpdate);
-
-/* ════ 개인연금 ════ */
-const PP={data:null};
-function ppUpdate(){
-  const curAge=parseInt(document.getElementById('pp-age').value)||35;
-  const recvAge=parseInt(document.getElementById('pp-recv-age').value)||65;
-  const monthly=parseFloat(document.getElementById('pp-monthly').value)||0; // 만원
-  const rate=parseFloat(document.getElementById('pp-rate').value)||0;
-  const recvYears=parseInt(document.getElementById('pp-recv-years').value)||20;
-  const creditType=document.getElementById('pp-credit-type').value;
-
-  const saveYears=Math.max(1,recvAge-curAge);
-  const r_m=rate/100/12;
-  const n_s=saveYears*12;
-  const n_r=recvYears*12;
-
-  // 적립 자산 (만원 단위)
-  const asset=r_m>0?monthly*((Math.pow(1+r_m,n_s)-1)/r_m)*(1+r_m):monthly*n_s;
-  // 월 수령액
-  const recv=r_m>0?asset*r_m/(1-Math.pow(1+r_m,-n_r)):asset/n_r;
-  const principal=monthly*n_s;
-
-  // 세액공제
-  const annualPay=monthly*12;
-  const limit=creditType==='irp'?900:600;
-  const creditRate=0.165;
-  const annualCredit=Math.min(annualPay,limit)*creditRate;
-  const totalCredit=annualCredit*saveYears;
-
-  document.getElementById('pp-principal').textContent=fmt(principal*10000);
-  document.getElementById('pp-asset').textContent=fmt(Math.round(asset*10000));
-  document.getElementById('pp-monthly-recv').textContent=fmt(Math.round(recv*10000));
-  document.getElementById('pp-annual-credit').textContent=fmt(Math.round(annualCredit*10000));
-  document.getElementById('pp-total-credit-sub').textContent=saveYears+'년간 총 '+fmt(Math.round(totalCredit*10000));
-  document.getElementById('pp-save-years').textContent=saveYears+'년 적립';
-
-  // 차트: 연도별 누적 자산
-  const labels=[],assetVals=[],prinVals=[];
-  for(let y=0;y<=Math.min(saveYears,40);y++){
-    const n=y*12;
-    const fv=r_m>0?monthly*((Math.pow(1+r_m,n)-1)/r_m)*(1+r_m):monthly*n;
-    labels.push(y+'년');
-    assetVals.push(Math.round(fv*10000));
-    prinVals.push(Math.round(monthly*n*10000));
   }
-  PP.data={labels,
-    series:[
-      {type:'bar',values:prinVals,color:'#B5D4F4'},
-      {type:'bar',values:assetVals.map((v,i)=>Math.max(0,v-prinVals[i])),color:'rgba(124,92,191,.7)'},
-    ],
-    tooltipLines:(i)=>[
-      {text:labels[i],bold:true},
-      {text:'총 자산:  '+fmt(assetVals[i]),bold:false,color:'#7C5CBF'},
-      {text:'납입 원금: '+fmt(prinVals[i]),bold:false},
-    ]};
-  ppRenderChart(-1);
+  // 부양가족 추가 공제
+  const mw = monthlyWon;
+  const famDed = mw<1_500_000?10_000 : mw<3_000_000?15_000 : mw<4_500_000?20_000 : mw<7_000_000?25_000 : 30_000;
+  const famCredit = (family-1) * famDed;
+  // 자녀세액공제 (연간 → 월 환산)
+  const childAnnual = child===1?150_000 : child===2?350_000 : child>=3?(350_000+(child-2)*300_000) : 0;
+  const childCredit = childAnnual / 12;
+  return Math.max(0, base - famCredit - childCredit);
 }
-function ppRenderChart(tip){if(!PP.data)return;renderChart('ppChart',PP.data,tip);}
-makeTip('ppChart',()=>PP.data,ppRenderChart);
-['pp-age','pp-recv-age','pp-monthly','pp-rate','pp-recv-years'].forEach(id=>{
-  const el=document.getElementById(id);if(!el)return;
-  el.addEventListener('input',function(){
-    if(id==='pp-monthly')setHint('pp-monthly',this.value*10000,'won');
-    ppUpdate();
+
+function swUpdate() {
+  const annual  = parseFloat(document.getElementById('sw-salary').value)  || 0;
+  const family  = Math.max(1, parseInt(document.getElementById('sw-family').value)  || 1);
+  const child   = Math.max(0, parseInt(document.getElementById('sw-child').value)   || 0);
+  const nontax  = parseFloat(document.getElementById('sw-nontax').value)  || 0;
+
+  const monthly = annual * 10000 / 12;
+  const NP_CAP  = 5_900_000;
+
+  // 4대보험
+  const np  = Math.min(NP_CAP, monthly) * 0.045;
+  const hi  = monthly * 0.03545;
+  const lc  = hi * 0.1281;
+  const ei  = monthly * 0.009;
+
+  // 소득세 (간이세액표, 비과세 제외 실질 월급여 기준)
+  // 비과세를 뺀 과세급여로 세액 산출 후, 비과세 있으면 세액 약간 줄어듦
+  // 간이세액표는 총급여 기준이므로 그대로 monthly 사용
+  const it  = swWithholding(monthly, family, child);
+  const lt  = it * 0.10;
+
+  const totalDed = np + hi + lc + ei + it + lt;
+  const net      = monthly - totalDed;
+  const effRate  = monthly > 0 ? ((it + lt) / monthly * 100) : 0;
+
+  // 카드
+  document.getElementById('sw-monthly-net').textContent = fmt(Math.round(net));
+  document.getElementById('sw-annual-net').textContent  = '연 ' + fmt(Math.round(net * 12));
+  document.getElementById('sw-monthly-ded').textContent = fmt(Math.round(totalDed));
+  document.getElementById('sw-annual-ded').textContent  = '연 ' + fmt(Math.round(totalDed * 12));
+  document.getElementById('sw-eff-rate').textContent    = effRate.toFixed(1) + '%';
+
+  // 공제 명세
+  const rows = [
+    ['국민연금 (4.5%)',              np,  ''],
+    ['건강보험 (3.545%)',            hi,  ''],
+    ['장기요양보험 (건보료×12.81%)', lc,  ''],
+    ['고용보험 (0.9%)',              ei,  ''],
+    ['근로소득세 (간이세액표)',       it,  ''],
+    ['지방소득세 (소득세×10%)',       lt,  ''],
+  ];
+  document.getElementById('sw-rows').innerHTML =
+    rows.map(([l, v]) =>
+      `<div class="tax-row"><span class="tl">${l}</span><span class="tv">${fmt(Math.round(v))}</span></div>`
+    ).join('') +
+    `<div class="tax-row total"><span class="tl">월 총 공제</span><span class="tv">${fmt(Math.round(totalDed))}</span></div>`;
+}
+
+// 이벤트
+['sw-salary','sw-family','sw-child','sw-nontax'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', function() {
+    if (id === 'sw-salary') setHint('sw-salary', this.value * 10000, 'won');
+    swUpdate();
   });
 });
-document.getElementById('pp-credit-type').addEventListener('change',ppUpdate);
+// 방향키 지원 (연봉 100만원 단위)
+document.getElementById('sw-salary').addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowUp')   { e.preventDefault(); this.value = Math.max(0, (parseFloat(this.value)||0) + 100); setHint('sw-salary', this.value*10000, 'won'); swUpdate(); }
+  if (e.key === 'ArrowDown') { e.preventDefault(); this.value = Math.max(100, (parseFloat(this.value)||0) - 100); setHint('sw-salary', this.value*10000, 'won'); swUpdate(); }
+});
 
 /* ════ 플로팅 계산기 ════ */
 (function(){
@@ -1954,11 +1683,11 @@ function initHints(){
     'c-principal':'won','c-monthly':'won',
     'd-amount':'won','d-shares':'shares','d-pershare':'won','d-years':'year',
     'l-amount':'eok','l-rate':'pct','l-years':'year',
+    'sw-salary':'wan',
     'te-salary':'wan',
     'tc-buy':'wan','tc-sell':'wan',
     'tf-dividend':'wan','tf-interest':'wan',
     'rt-wage':'wan','rt-years':'year',
-    'pn-income':'wan','pn-years':'year','pp-monthly':'wan',
   };
   Object.entries(map).forEach(([id,type])=>{
     const el=document.getElementById(id);if(!el)return;
@@ -1973,6 +1702,8 @@ window.addEventListener('resize',()=>reRenderActive());
 /* ════ 초기화 ════ */
 window.addEventListener('load',()=>{
   initHints();
+  // 연봉
+  swUpdate();
   // 대출
   lSyncRate(4.5);lSyncYears(30);lUpdate();
   // 복리
@@ -1980,11 +1711,10 @@ window.addEventListener('load',()=>{
   // 배당
   dSyncYears(20);dUpdate();
   // 세금
-  teUpdate();tcUpdate();tfUpdate();
+  tcUpdate();tfUpdate();
   // 퇴직금
   rtUpdate();
   // 연금
-  pnUpdate();ppUpdate();
   // 헤더 배지 초기 상태
   document.getElementById('headerBadge').style.display='';
 });
